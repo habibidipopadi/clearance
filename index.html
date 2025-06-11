@@ -473,11 +473,14 @@
     <div class="email-instructions">
       <h4 id="instructionsTitle">📧 Email Instructions:</h4>
       <ol id="instructionsList">
-        <li id="instruction1">Download the PDF first</li>
+        <li id="instruction1"><strong>Download the PDF first</strong></li>
         <li id="instruction2">Click "Send Form" to open your email client</li>
-        <li id="instruction3">Attach the PDF file to the email</li>
+        <li id="instruction3"><strong>⚠️ IMPORTANT: Attach the PDF file to the email</strong></li>
         <li id="instruction4">Send the email</li>
       </ol>
+      <p id="attachmentReminder" style="color: #d63384; font-weight: bold; margin-top: 10px;">
+        📎 Remember: You must manually attach the PDF file before sending!
+      </p>
     </div>
     
     <div class="button-group">
@@ -536,13 +539,14 @@
         completedFormTitle: "Your completed form is ready!",
         downloadInstructions: "Download your PDF and send it via email.",
         instructionsTitle: "📧 Email Instructions:",
-        instruction1: "Download the PDF first",
+        instruction1: "<strong>Download the PDF first</strong>",
         instruction2: "Click \"Send Form\" to open your email client",
-        instruction3: "Attach the PDF file to the email",
+        instruction3: "<strong>⚠️ IMPORTANT: Attach the PDF file to the email</strong>",
         instruction4: "Send the email",
         downloadPdfBtn: "Download PDF",
         printPdfBtn: "Print PDF",
         sendFormBtn: "📧 Send Form",
+        attachmentReminder: "📎 Remember: You must manually attach the PDF file before sending!",
         // Status messages
         processingMsg: "Generating your form... Please wait.",
         signatureRequired: "Please sign the form before generating the PDF.",
@@ -594,13 +598,14 @@
         completedFormTitle: "Votre formulaire complété est prêt !",
         downloadInstructions: "Téléchargez votre PDF et envoyez-le par courriel.",
         instructionsTitle: "📧 Instructions pour le courriel :",
-        instruction1: "Téléchargez d'abord le PDF",
+        instruction1: "<strong>Téléchargez d'abord le PDF</strong>",
         instruction2: "Cliquez sur \"Envoyer le formulaire\" pour ouvrir votre client de messagerie",
-        instruction3: "Joignez le fichier PDF au courriel",
+        instruction3: "<strong>⚠️ IMPORTANT : Joignez le fichier PDF au courriel</strong>",
         instruction4: "Envoyez le courriel",
         downloadPdfBtn: "Télécharger le PDF",
         printPdfBtn: "Imprimer le PDF",
         sendFormBtn: "📧 Envoyer le formulaire",
+        attachmentReminder: "📎 Rappel : Vous devez joindre manuellement le fichier PDF avant d'envoyer !",
         // Status messages
         processingMsg: "Génération de votre formulaire... Veuillez patienter.",
         signatureRequired: "Veuillez signer le formulaire avant de générer le PDF.",
@@ -662,13 +667,14 @@
       document.getElementById('completedFormTitle').textContent = texts.completedFormTitle;
       document.getElementById('downloadInstructions').textContent = texts.downloadInstructions;
       document.getElementById('instructionsTitle').textContent = texts.instructionsTitle;
-      document.getElementById('instruction1').textContent = texts.instruction1;
-      document.getElementById('instruction2').textContent = texts.instruction2;
-      document.getElementById('instruction3').textContent = texts.instruction3;
-      document.getElementById('instruction4').textContent = texts.instruction4;
+      document.getElementById('instruction1').innerHTML = texts.instruction1;
+      document.getElementById('instruction2').innerHTML = texts.instruction2;
+      document.getElementById('instruction3').innerHTML = texts.instruction3;
+      document.getElementById('instruction4').innerHTML = texts.instruction4;
       document.getElementById('downloadPdfBtn').textContent = texts.downloadPdfBtn;
       document.getElementById('printPdfBtn').textContent = texts.printPdfBtn;
       document.getElementById('sendFormBtn').textContent = texts.sendFormBtn;
+      document.getElementById('attachmentReminder').textContent = texts.attachmentReminder;
       
       // Update document language attribute
       document.documentElement.lang = language === 'english' ? 'en' : 'fr';
@@ -1033,7 +1039,8 @@
       const applicantName = `${document.getElementById('prenoms').value} ${document.getElementById('nom').value}`;
       const submissionDate = new Date().toLocaleDateString();
       
-      const subject = encodeURIComponent('Quebec Background Check Form Submission');
+      // Format subject with applicant name and date: "John Smith Clearance Form Application 6/11/2025"
+      const subject = encodeURIComponent(`${applicantName} Clearance Form Application ${submissionDate}`);
       const body = encodeURIComponent(`Hello,
 
 I am submitting my completed Quebec Background Check Form as requested.
@@ -1044,9 +1051,9 @@ Applicant Details:
 - Phone: ${userPhone}
 - Submission Date: ${submissionDate}
 
-Please find the completed PDF form attached to this email.
+⚠️ IMPORTANT: Please remember to attach the PDF file before sending this email.
 
-If you need any additional information, please contact me at ${userEmail}.
+The completed PDF form should be attached to this email. If you need any additional information, please contact me at ${userEmail}.
 
 Thank you for your time.
 
