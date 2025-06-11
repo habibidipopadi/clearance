@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quebec Background Check Form Filler</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/downloadjs/1.4.8/download.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .char-counter {
+      color: #6c757d;
+      font-size: 12px;
+      display: block;
+      text-align: right;
+      margin-top: 2px;
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+    .form-section {
+      background-color: #f9f9f9;
+      border-radius: 5px;
+      padding: 15px;
+      margin-bottom: 20px;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    input[type="text"], 
+    input[type="date"],
+    input[type="tel"],
+    select {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    .radio-group {
+      display: flex;
+      gap: 15px;
+    }
+    .radio-group label {
+      font-weight: normal;
+    }
+    .btn {
+      background-color: #0056b3;
+      color: white;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      margin-right: 10px;
+    }
+    .btn:hover {
+      background-color: #003d7e;
+    }
+    .btn-secondary {
+      background-color: #6c757d;
+    }
+    .btn-secondary:hover {
+      background-color: #5a6268;
+    }
+    #status {
+      margin-top: 20px;
+      padding: 10px;
+      border-radius: 4px;
+      display: none;
+    }
+    .success {
+      background-color: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+    .error {
+      background-color: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+    .loading {
+      background-color: #e2e3e5;
+      color: #383d41;
+      border: 1px solid #d6d8db;
+    }
+    .spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(0, 0, 0, 0.3);
+      border-radius: 50%;
+      border-top-color: #0056b3;
+      animation: spin 1s ease-in-out infinite;
+      margin-right: 10px;
+      vertical-align: middle;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    .pdf-container {
+      margin-top: 20px;
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: center;
+      display: none;
+    }
+    .pdf-preview {
+      width: 100%;
+      height: 800px;
+      border: none;
+    }
+    #signatureCanvas {
+      border: 1px solid #ddd;
+      background-color: #fff;
+      cursor: crosshair;
+    }
+    .signature-pad {
+      margin-top: 10px;
+    }
+    .signature-actions {
+      margin-top: 10px;
+    }
+    .tab-container {
+      margin-bottom: 20px;
+    }
+    .tab-buttons {
+      display: flex;
+      gap: 5px;
+      margin-bottom: 10px;
+    }
+    .tab-button {
+      padding: 8px 16px;
+      border: 1px solid #ddd;
+      background-color: #f5f5f5;
+      cursor: pointer;
+      border-radius: 4px 4px 0 0;
+    }
+    .tab-button.active {
+      background-color: #0056b3;
+      color: white;
+      border-color: #0056b3;
+    }
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    .note {
+      background-color: #fff3cd;
+      border: 1px solid #ffeeba;
+      border-radius: 4px;
+      padding: 10px;
+      margin-bottom: 20px;
+      color: #856404;
+    }
+    
+    /* Language toggle switch styles */
+    .language-toggle-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+      gap: 10px;
+    }
+    .language-label {
+      font-weight: bold;
+    }
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 60px;
+      height: 34px;
+    }
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: .4s;
+      border-radius: 34px;
+    }
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 26px;
+      width: 26px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+    input:checked + .slider {
+      background-color: #2196F3;
+    }
+    input:focus + .slider {
+      box-shadow: 0 0 1px #2196F3;
+    }
+    input:checked + .slider:before {
+      transform: translateX(26px);
+    }
+    
+    /* Added custom styles for consent text */
+    .consent-text {
+      background-color: #f5f5f5;
+      padding: 15px;
+      border-radius: 5px;
+      margin-bottom: 20px;
+      border-left: 4px solid #0056b3;
+      font-size: 0.95em;
+      line-height: 1.5;
+    }
+    .consent-text p {
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1 id="pageTitle">Quebec Background Check Form Filler</h1>
+  
+  <!-- Language Toggle -->
+  <div class="language-toggle-container">
+    <span class="language-label" id="englishLabel">English</span>
+    <label class="switch">
+      <input type="checkbox" id="languageToggle">
+      <span class="slider"></span>
+    </label>
+    <span class="language-label" id="frenchLabel">Français</span>
+  </div>
+  
+  <div class="note" id="noteContent">
+    <p><strong id="noteLabel">Note:</strong> <span id="noteText">This tool will overlay your data on the official Quebec Background Check Form PDF. To ensure accurate placement, please make sure to upload the exact form referenced in this application.</span></p>
+  </div>
+
+  <div class="tab-container">
+    <div class="tab-buttons">
+      <div class="tab-button active" data-tab="form" id="formTabButton">Consent Form</div>
+      <div class="tab-button" data-tab="upload" id="uploadTabButton">Upload PDF</div>
+    </div>
+    
+    <div id="form-tab" class="tab-content active">
+      <div class="form-section">
+        <h2 id="personalInfoTitle">Personal Information</h2>
+        <div class="form-group">
+          <label for="nom" id="lastNameLabel">Last Name:</label>
+          <input type="text" id="nom" maxlength="40">
+          <small class="char-counter"><span id="nomCounter">0</span>/40</small>
+        </div>
+        <div class="form-group">
+          <label for="prenoms" id="firstNameLabel">First Name:</label>
+          <input type="text" id="prenoms" maxlength="40">
+          <small class="char-counter"><span id="prenomsCounter">0</span>/40</small>
+        </div>
+        <div class="form-group">
+          <label for="nomNaissance" id="birthNameLabel">Name on birth certificate (if different):</label>
+          <input type="text" id="nomNaissance" maxlength="50">
+          <small class="char-counter"><span id="nomNaissanceCounter">0</span>/50</small>
+        </div>
+        <div class="form-group">
+          <label for="autreNoms" id="otherNamesLabel">Any other names, first names or nicknames:</label>
+          <input type="text" id="autreNoms" maxlength="60">
+          <small class="char-counter"><span id="autreNomsCounter">0</span>/60</small>
+        </div>
+        <div class="form-group">
+          <label for="dateNaissance" id="dobLabel">Date of Birth (DD/MM/YYYY):</label>
+          <input type="date" id="dateNaissance">
+        </div>
+        <div class="form-group">
+          <label id="genderLabel">Gender:</label>
+          <div class="radio-group">
+            <div>
+              <input type="radio" id="sexeMasculin" name="sexe" value="Masculin">
+              <label for="sexeMasculin" id="maleLabel">Male</label>
+            </div>
+            <div>
+              <input type="radio" id="sexeFeminin" name="sexe" value="Féminin">
+              <label for="sexeFeminin" id="femaleLabel">Female</label>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="nomMere" id="motherNameLabel">Mother's Full Name (First and Last):</label>
+          <input type="text" id="nomMere" maxlength="50">
+          <small class="char-counter"><span id="nomMereCounter">0</span>/50</small>
+        </div>
+        <div class="form-group">
+          <label for="adresse" id="addressLabel">Address - Number, Street, Apartment:</label>
+          <input type="text" id="adresse" maxlength="80">
+          <small class="char-counter"><span id="adresseCounter">0</span>/80</small>
+        </div>
+        <div class="form-group">
+          <label for="ville" id="cityLabel">City, Province, Postal Code:</label>
+          <input type="text" id="ville" maxlength="70">
+          <small class="char-counter"><span id="villeCounter">0</span>/70</small>
+        </div>
+        <div class="form-group">
+          <label for="dateAdresse" id="addressDateLabel">Since when have you lived at this address (DD/MM/YYYY):</label>
+          <input type="date" id="dateAdresse">
+        </div>
+        <div class="form-group">
+          <label for="telDomicile" id="homePhoneLabel">Home Phone:</label>
+          <input type="tel" id="telDomicile" maxlength="20" inputmode="numeric" pattern="[0-9]*">
+          <small class="char-counter"><span id="telDomicileCounter">0</span>/20</small>
+        </div>
+        <div class="form-group">
+          <label for="telTravail" id="workPhoneLabel">Work Phone:</label>
+          <input type="tel" id="telTravail" maxlength="20" inputmode="numeric" pattern="[0-9]*">
+          <small class="char-counter"><span id="telTravailCounter">0</span>/20</small>
+        </div>
+        <div class="form-group">
+          <label for="telAutre" id="otherPhoneLabel">Other Phone Number:</label>
+          <input type="tel" id="telAutre" maxlength="20" inputmode="numeric" pattern="[0-9]*">
+          <small class="char-counter"><span id="telAutreCounter">0</span>/20</small>
+        </div>
+        <div class="form-group">
+          <label id="crimeLabel">Have you ever been found guilty of a criminal offense in Canada or elsewhere, or are you currently facing prosecution for such an offense?</label>
+          <div class="radio-group">
+            <div>
+              <input type="radio" id="infNon" name="infraction" value="Non">
+              <label for="infNon" id="noLabel">No</label>
+            </div>
+            <div>
+              <input type="radio" id="infOui" name="infraction" value="Oui">
+              <label for="infOui" id="yesLabel">Yes</label>
+            </div>
+          </div>
+        </div>
+        <div class="form-group" id="infraDetail" style="display:none;">
+          <label for="infractionDetails" id="infractionDetailsLabel">If yes, please specify:</label>
+          <input type="text" id="infractionDetails" maxlength="150">
+          <small class="char-counter"><span id="infractionDetailsCounter">0</span>/150</small>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h2 id="signatureTitle">Digital Signature</h2>
+        
+        <!-- Added consent text -->
+        <div class="form-group">
+          <div class="consent-text">
+            <p>I, the undersigned, hereby consent to the Directorate General of Correctional Services of the Ministry of Public Security collecting information about my judicial and correctional background. This information will be used solely for the security screening required to authorize my access to individuals, locations, and sensitive information. I have been informed that only persons duly authorized by the Directorate General of Correctional Services have access to this information.</p>
+            <p>I, the undersigned, understand that the verification of my judicial and correctional background by the Directorate General of Correctional Services is a prerequisite for authorizing my access to individuals, locations, and sensitive information. In addition, I agree to inform the Directorate General of Correctional Services of any conviction under a law in force in Quebec during my employment contract, internship, or visit.</p>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="dateSignature" id="signDateLabel">Signature Date (DD/MM/YYYY):</label>
+          <input type="date" id="dateSignature">
+        </div>
+        <div class="form-group">
+          <label id="yourSignatureLabel">Your Signature:</label>
+          <div class="signature-pad">
+            <canvas id="signatureCanvas" width="600" height="150"></canvas>
+            <div class="signature-actions">
+              <button id="clearSignature" class="btn btn-secondary">Clear Signature</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div id="upload-tab" class="tab-content">
+      <div class="form-section">
+        <h2 id="uploadTitle">Upload PDF Form</h2>
+        <div class="form-group">
+          <label for="pdfFile" id="selectPdfLabel">Select the Quebec Background Check Form PDF:</label>
+          <input type="file" id="pdfFile" accept=".pdf">
+        </div>
+        <p id="pdfInstructions">The form should match the official "Consentement à la vérification des antécédents judiciaires et correctionnels" document.</p>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <button type="button" id="fillPdfBtn" class="btn">Fill PDF Form</button>
+    <button type="button" id="resetFormBtn" class="btn btn-secondary">Reset Form</button>
+  </div>
+
+  <div id="status"></div>
+
+  <div id="pdfContainer" class="pdf-container">
+    <h3 id="completedFormTitle">Your completed form is ready!</h3>
+    <p id="downloadInstructions">You can download this PDF using the button below, or print it directly from here.</p>
+    <button id="downloadPdfBtn" class="btn">Download PDF</button>
+    <button id="printPdfBtn" class="btn btn-secondary">Print PDF</button>
+    <div style="margin-top: 20px;">
+      <iframe id="pdfPreview" class="pdf-preview"></iframe>
+    </div>
+  </div>
+
+  <script>
+    // Language translations
+    const translations = {
+      english: {
+        pageTitle: "Quebec Background Check Form Filler",
+        noteLabel: "Note:",
+        noteText: "This tool will overlay your data on the official Quebec Background Check Form PDF. To ensure accurate placement, please make sure to upload the exact form referenced in this application.",
+        formTabButton: "Consent Form",
+        uploadTabButton: "Upload PDF",
+        personalInfoTitle: "Personal Information",
+        lastNameLabel: "Last Name:",
+        firstNameLabel: "First Name:",
+        birthNameLabel: "Name on birth certificate (if different):",
+        otherNamesLabel: "Any other names, first names or nicknames:",
+        dobLabel: "Date of Birth (DD/MM/YYYY):",
+        genderLabel: "Gender:",
+        maleLabel: "Male",
+        femaleLabel: "Female",
+        motherNameLabel: "Mother's Full Name (First and Last):",
+        addressLabel: "Address - Number, Street, Apartment:",
+        cityLabel: "City, Province, Postal Code:",
+        addressDateLabel: "Since when have you lived at this address (DD/MM/YYYY):",
+        homePhoneLabel: "Home Phone:",
+        workPhoneLabel: "Work Phone:",
+        otherPhoneLabel: "Other Phone Number:",
+        crimeLabel: "Have you ever been found guilty of a criminal offense in Canada or elsewhere, or are you currently facing prosecution for such an offense?",
+        noLabel: "No",
+        yesLabel: "Yes",
+        infractionDetailsLabel: "If yes, please specify:",
+        signatureTitle: "Digital Signature",
+        signDateLabel: "Signature Date (DD/MM/YYYY):",
+        yourSignatureLabel: "Your Signature:",
+        clearSignature: "Clear Signature",
+        uploadTitle: "Upload PDF Form",
+        selectPdfLabel: "Select the Quebec Background Check Form PDF:",
+        pdfInstructions: "The form should match the official \"Consentement à la vérification des antécédents judiciaires et correctionnels\" document.",
+        fillPdfBtn: "Fill PDF Form",
+        resetFormBtn: "Reset Form",
+        completedFormTitle: "Your completed form is ready!",
+        downloadInstructions: "You can download this PDF using the button below, or print it directly from here.",
+        downloadPdfBtn: "Download PDF",
+        printPdfBtn: "Print PDF",
+        // Status messages
+        processingMsg: "Processing... Please wait.",
+        pdfUploadSuccess: "PDF form uploaded successfully.",
+        invalidPdfError: "Please upload a valid PDF file.",
+        signatureRequired: "Please sign the form before generating the PDF.",
+        pdfRequired: "Please upload the PDF form first.",
+        signatureError: "Error adding signature to the PDF.",
+        pdfSuccess: "PDF form has been successfully filled!",
+        pdfError: "Error processing the PDF: "
+      },
+      french: {
+        pageTitle: "Formulaire de vérification d'antécédents du Québec",
+        noteLabel: "Remarque :",
+        noteText: "Cet outil superposera vos données sur le formulaire officiel de vérification des antécédents du Québec. Pour garantir un placement précis, veuillez vous assurer de télécharger le formulaire exact référencé dans cette application.",
+        formTabButton: "Formulaire de consentement",
+        uploadTabButton: "Télécharger PDF",
+        personalInfoTitle: "Informations personnelles",
+        lastNameLabel: "Nom de famille :",
+        firstNameLabel: "Prénom :",
+        birthNameLabel: "Nom sur l'acte de naissance (si différent) :",
+        otherNamesLabel: "Autres noms, prénoms ou surnoms :",
+        dobLabel: "Date de naissance (JJ/MM/AAAA) :",
+        genderLabel: "Sexe :",
+        maleLabel: "Masculin",
+        femaleLabel: "Féminin",
+        motherNameLabel: "Nom complet de la mère (prénom et nom) :",
+        addressLabel: "Adresse - Numéro, rue, appartement :",
+        cityLabel: "Ville, province, code postal :",
+        addressDateLabel: "Depuis quand habitez-vous à cette adresse (JJ/MM/AAAA) :",
+        homePhoneLabel: "Téléphone domicile :",
+        workPhoneLabel: "Téléphone travail :",
+        otherPhoneLabel: "Autre numéro de téléphone :",
+        crimeLabel: "Avez-vous déjà été reconnu coupable d'une infraction criminelle au Canada ou ailleurs, ou faites-vous actuellement l'objet de poursuites pour une telle infraction ?",
+        noLabel: "Non",
+        yesLabel: "Oui",
+        infractionDetailsLabel: "Si oui, veuillez préciser :",
+        signatureTitle: "Signature numérique",
+        signDateLabel: "Date de signature (JJ/MM/AAAA) :",
+        yourSignatureLabel: "Votre signature :",
+        clearSignature: "Effacer la signature",
+        uploadTitle: "Télécharger le formulaire PDF",
+        selectPdfLabel: "Sélectionnez le formulaire PDF de vérification des antécédents du Québec :",
+        pdfInstructions: "Le formulaire doit correspondre au document officiel \"Consentement à la vérification des antécédents judiciaires et correctionnels\".",
+        fillPdfBtn: "Remplir le formulaire PDF",
+        resetFormBtn: "Réinitialiser le formulaire",
+        completedFormTitle: "Votre formulaire complété est prêt !",
+        downloadInstructions: "Vous pouvez télécharger ce PDF en utilisant le bouton ci-dessous, ou l'imprimer directement à partir d'ici.",
+        downloadPdfBtn: "Télécharger le PDF",
+        printPdfBtn: "Imprimer le PDF",
+        // Status messages
+        processingMsg: "Traitement en cours... Veuillez patienter.",
+        pdfUploadSuccess: "Formulaire PDF téléchargé avec succès.",
+        invalidPdfError: "Veuillez télécharger un fichier PDF valide.",
+        signatureRequired: "Veuillez signer le formulaire avant de générer le PDF.",
+        pdfRequired: "Veuillez d'abord télécharger le formulaire PDF.",
+        signatureError: "Erreur lors de l'ajout de la signature au PDF.",
+        pdfSuccess: "Le formulaire PDF a été rempli avec succès !",
+        pdfError: "Erreur lors du traitement du PDF : "
+      }
+    };
+
+    // Function to change language
+    function setLanguage(language) {
+      const texts = translations[language];
+      
+      // Update all text elements
+      document.getElementById('pageTitle').textContent = texts.pageTitle;
+      document.getElementById('noteLabel').textContent = texts.noteLabel;
+      document.getElementById('noteText').textContent = texts.noteText;
+      document.getElementById('formTabButton').textContent = texts.formTabButton;
+      document.getElementById('uploadTabButton').textContent = texts.uploadTabButton;
+      document.getElementById('personalInfoTitle').textContent = texts.personalInfoTitle;
+      document.getElementById('lastNameLabel').textContent = texts.lastNameLabel;
+      document.getElementById('firstNameLabel').textContent = texts.firstNameLabel;
+      document.getElementById('birthNameLabel').textContent = texts.birthNameLabel;
+      document.getElementById('otherNamesLabel').textContent = texts.otherNamesLabel;
+      document.getElementById('dobLabel').textContent = texts.dobLabel;
+      document.getElementById('genderLabel').textContent = texts.genderLabel;
+      document.getElementById('maleLabel').textContent = texts.maleLabel;
+      document.getElementById('femaleLabel').textContent = texts.femaleLabel;
+      document.getElementById('motherNameLabel').textContent = texts.motherNameLabel;
+      document.getElementById('addressLabel').textContent = texts.addressLabel;
+      document.getElementById('cityLabel').textContent = texts.cityLabel;
+      document.getElementById('addressDateLabel').textContent = texts.addressDateLabel;
+      document.getElementById('homePhoneLabel').textContent = texts.homePhoneLabel;
+      document.getElementById('workPhoneLabel').textContent = texts.workPhoneLabel;
+      document.getElementById('otherPhoneLabel').textContent = texts.otherPhoneLabel;
+      document.getElementById('crimeLabel').textContent = texts.crimeLabel;
+      document.getElementById('noLabel').textContent = texts.noLabel;
+      document.getElementById('yesLabel').textContent = texts.yesLabel;
+      document.getElementById('infractionDetailsLabel').textContent = texts.infractionDetailsLabel;
+      document.getElementById('signatureTitle').textContent = texts.signatureTitle;
+      document.getElementById('signDateLabel').textContent = texts.signDateLabel;
+      document.getElementById('yourSignatureLabel').textContent = texts.yourSignatureLabel;
+      document.getElementById('clearSignature').textContent = texts.clearSignature;
+      document.getElementById('uploadTitle').textContent = texts.uploadTitle;
+      document.getElementById('selectPdfLabel').textContent = texts.selectPdfLabel;
+      document.getElementById('pdfInstructions').textContent = texts.pdfInstructions;
+      document.getElementById('fillPdfBtn').textContent = texts.fillPdfBtn;
+      document.getElementById('resetFormBtn').textContent = texts.resetFormBtn;
+      document.getElementById('completedFormTitle').textContent = texts.completedFormTitle;
+      document.getElementById('downloadInstructions').textContent = texts.downloadInstructions;
+      document.getElementById('downloadPdfBtn').textContent = texts.downloadPdfBtn;
+      document.getElementById('printPdfBtn').textContent = texts.printPdfBtn;
+      
+      // Update document language attribute
+      document.documentElement.lang = language === 'english' ? 'en' : 'fr';
+    }
+
+    // Language toggle event listener
+    document.getElementById('languageToggle').addEventListener('change', function() {
+      const language = this.checked ? 'french' : 'english';
+      setLanguage(language);
+    });
+
+    // Initialize tab functionality
+    document.querySelectorAll('.tab-button').forEach(button => {
+      button.addEventListener('click', function() {
+        const tabId = this.getAttribute('data-tab');
+        
+        // Update button active state
+        document.querySelectorAll('.tab-button').forEach(btn => {
+          btn.classList.remove('active');
+        });
+        this.classList.add('active');
+        
+        // Update content visibility
+        document.querySelectorAll('.tab-content').forEach(content => {
+          content.classList.remove('active');
+        });
+        document.getElementById(tabId + '-tab').classList.add('active');
+      });
+    });
+
+    // Handle infraction details display
+    document.querySelectorAll('input[name="infraction"]').forEach(radio => {
+      radio.addEventListener('change', function() {
+        const infraDetail = document.getElementById('infraDetail');
+        if (this.value === 'Oui') {
+          infraDetail.style.display = 'block';
+        } else {
+          infraDetail.style.display = 'none';
+        }
+      });
+    });
+
+    // Initialize signature pad
+    const canvas = document.getElementById('signatureCanvas');
+    const ctx = canvas.getContext('2d');
+    let isDrawing = false;
+    let signatureData = null;
+
+    // Setup canvas for drawing
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = "black";
+    ctx.fillStyle = "white";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Add event listeners for drawing
+    canvas.addEventListener('mousedown', startDrawing);
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('mouseup', stopDrawing);
+    canvas.addEventListener('mouseout', stopDrawing);
+    
+    // Touch events for mobile
+    canvas.addEventListener('touchstart', startDrawingTouch);
+    canvas.addEventListener('touchmove', drawTouch);
+    canvas.addEventListener('touchend', stopDrawing);
+
+    // Drawing functions
+    function startDrawing(e) {
+      isDrawing = true;
+      draw(e);
+    }
+
+    function startDrawingTouch(e) {
+      isDrawing = true;
+      const touch = e.touches[0];
+      const mouseEvent = new MouseEvent('mousedown', {
+        clientX: touch.clientX,
+        clientY: touch.clientY
+      });
+      canvas.dispatchEvent(mouseEvent);
+      e.preventDefault();
+    }
+
+    function draw(e) {
+      if (!isDrawing) return;
+      
+      ctx.lineCap = 'round';
+      
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      
+      ctx.lineTo(x, y);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+    }
+
+    function drawTouch(e) {
+      const touch = e.touches[0];
+      const mouseEvent = new MouseEvent('mousemove', {
+        clientX: touch.clientX,
+        clientY: touch.clientY
+      });
+      canvas.dispatchEvent(mouseEvent);
+      e.preventDefault();
+    }
+
+    function stopDrawing() {
+      if (isDrawing) {
+        ctx.beginPath();
+        isDrawing = false;
+        // Save signature data
+        signatureData = canvas.toDataURL('image/png');
+      }
+    }
+
+    // Clear signature button
+    document.getElementById('clearSignature').addEventListener('click', function() {
+      ctx.fillStyle = "white";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.beginPath();
+      signatureData = null;
+    });
+
+    // Reset form button
+    document.getElementById('resetFormBtn').addEventListener('click', function() {
+      // Reset all form fields
+      document.querySelectorAll('input[type="text"], input[type="tel"], input[type="date"]').forEach(input => {
+        input.value = '';
+      });
+      
+      document.querySelectorAll('input[type="checkbox"], input[type="radio"]').forEach(input => {
+        input.checked = false;
+      });
+      
+      // Hide conditional fields
+      document.getElementById('infraDetail').style.display = 'none';
+      
+      // Clear signature
+      ctx.fillStyle = "white";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.beginPath();
+      signatureData = null;
+      
+      // Hide PDF container
+      document.getElementById('pdfContainer').style.display = 'none';
+      
+      // Clear status
+      document.getElementById('status').style.display = 'none';
+    });
+
+    // Variables to store PDF data
+    let pdfBytes = null;
+
+    // Handle PDF file upload
+    document.getElementById('pdfFile').addEventListener('change', function(event) {
+      const file = event.target.files[0];
+      if (file && file.type === 'application/pdf') {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          pdfBytes = new Uint8Array(e.target.result);
+          const language = document.getElementById('languageToggle').checked ? 'french' : 'english';
+          showStatus('success', translations[language].pdfUploadSuccess);
+        };
+        reader.readAsArrayBuffer(file);
+      } else {
+        const language = document.getElementById('languageToggle').checked ? 'french' : 'english';
+        showStatus('error', translations[language].invalidPdfError);
+      }
+    });
+
+    // Fill PDF function
+    async function fillPDF() {
+      const language = document.getElementById('languageToggle').checked ? 'french' : 'english';
+      const texts = translations[language];
+      
+      // Validate signature
+      if (!signatureData) {
+        alert(texts.signatureRequired);
+        return;
+      }
+      
+      // Validate PDF
+      if (!pdfBytes) {
+        alert(texts.pdfRequired);
+        document.querySelectorAll('.tab-button')[1].click(); // Switch to upload tab
+        return;
+      }
+      
+      showStatus('loading', texts.processingMsg);
+      
+      try {
+        const { PDFDocument, rgb, StandardFonts } = PDFLib;
+        
+        // Load the existing PDF
+        const pdfDoc = await PDFDocument.load(pdfBytes);
+        
+        // Get the first page of the document
+        const pages = pdfDoc.getPages();
+        const page = pages[0];
+        
+        // Get a font
+        const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+        
+        // Format dates (DD/MM/YYYY)
+        const formatDate = (dateStr) => {
+          if (!dateStr) return '';
+          const date = new Date(dateStr);
+          return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
+        };
+        
+        // Get form values
+        const nom = document.getElementById('nom').value;
+        const prenoms = document.getElementById('prenoms').value;
+        const nomNaissance = document.getElementById('nomNaissance').value;
+        const autreNoms = document.getElementById('autreNoms').value;
+        const dateNaissance = formatDate(document.getElementById('dateNaissance').value);
+        
+        const sexe = document.querySelector('input[name="sexe"]:checked');
+        const sexeValue = sexe ? sexe.value : '';
+        
+        const nomMere = document.getElementById('nomMere').value;
+        const adresse = document.getElementById('adresse').value;
+        const ville = document.getElementById('ville').value;
+        const dateAdresse = formatDate(document.getElementById('dateAdresse').value);
+        const telDomicile = document.getElementById('telDomicile').value;
+        const telTravail = document.getElementById('telTravail').value;
+        const telAutre = document.getElementById('telAutre').value;
+        
+        const infraction = document.querySelector('input[name="infraction"]:checked');
+        const infractionValue = infraction ? infraction.value : '';
+        const infractionDetail = document.getElementById('infractionDetails').value;
+        
+        const dateSignature = formatDate(document.getElementById('dateSignature').value);
+        
+        // Set coordinates for text placement on the PDF
+        // Section 2 - Personal Information
+        // Last name
+        page.drawText(nom, { x: 170, y: 648, size: 10, font });
+        
+        // First names
+        page.drawText(prenoms, { x: 170, y: 700, size: 10, font });
+        
+        // Birth name
+        page.drawText(nomNaissance, { x: 400, y: 680, size: 10, font });
+        
+        // Other names
+        page.drawText(autreNoms, { x: 400, y: 648, size: 10, font });
+        
+        // Date of birth
+        if (dateNaissance) {
+          const [day, month, year] = dateNaissance.split('/');
+          page.drawText(day, { x: 50, y: 610, size: 10, font });
+          page.drawText(month, { x: 70, y: 610, size: 10, font });
+          page.drawText(year, { x: 100, y: 610, size: 10, font });
+        }
+        
+        // Gender
+        if (sexeValue === 'Masculin') {
+          page.drawText('X', { x: 170, y: 610, size: 12, font });
+        } else if (sexeValue === 'Féminin') {
+          page.drawText('X', { x: 220, y: 610, size: 12, font });
+        }
+        
+        // Mother's name
+        page.drawText(nomMere, { x: 400, y: 605, size: 10, font });
+        
+        // Address
+        page.drawText(adresse, { x: 150, y: 560, size: 10, font });
+        
+        // City, province, postal code
+        page.drawText(ville, { x: 400, y: 580, size: 10, font });
+        
+        // Since when at address
+        if (dateAdresse) {
+          const [day, month, year] = dateAdresse.split('/');
+          page.drawText(day, { x: 50, y: 530, size: 10, font });
+          page.drawText(month, { x: 70, y: 530, size: 10, font });
+          page.drawText(year, { x: 100, y: 530, size: 10, font });
+        }
+        
+        // Phone numbers
+        page.drawText(telDomicile, { x: 400, y: 536, size: 10, font });
+        page.drawText(telTravail, { x: 390, y: 524, size: 10, font });
+        page.drawText(telAutre, { x: 410, y: 516, size: 10, font });
+        
+        // Criminal history
+        if (infractionValue === 'Non') {
+          page.drawText('X', { x: 58, y: 455, size: 12, font });
+        } else if (infractionValue === 'Oui') {
+          page.drawText('X', { x: 88, y: 455, size: 12, font });
+          page.drawText(infractionDetail, { x: 110, y: 440, size: 10, font });
+        }
+        
+        // Signature date (for both Parts B and C)
+        if (dateSignature) {
+          // For Part B
+          const [day1, month1, year1] = dateSignature.split('/');
+          page.drawText(day1, { x: 380, y: 260, size: 10, font });
+          page.drawText(month1, { x: 405, y: 260, size: 10, font });
+          page.drawText(year1, { x: 435, y: 260, size: 10, font });
+          
+          // For Part C
+          const [day2, month2, year2] = dateSignature.split('/');
+          page.drawText(day2, { x: 385, y: 180, size: 10, font });
+          page.drawText(month2, { x: 410, y: 180, size: 10, font });
+          page.drawText(year2, { x: 435, y: 180, size: 10, font });
+        }
+        
+        // Add signature image for both signature lines
+        try {
+          // Convert signature data URL to bytes
+          const signatureImageBytes = await fetch(signatureData).then(res => res.arrayBuffer());
+          const signatureImage = await pdfDoc.embedPng(signatureImageBytes);
+          
+          // Size the signature appropriately
+          const signatureDims = signatureImage.scale(0.2); // Scale signature to 20% of original size
+          
+          // Add signature to Part B
+          page.drawImage(signatureImage, {
+            x: 170,
+            y: 250,
+            width: signatureDims.width,
+            height: signatureDims.height,
+          });
+          
+          // Add signature to Part C
+          page.drawImage(signatureImage, {
+            x: 170,
+            y: 170,
+            width: signatureDims.width,
+            height: signatureDims.height,
+          });
+        } catch (error) {
+          console.error('Error embedding signature:', error);
+          showStatus('error', texts.signatureError);
+          return;
+        }
+        
+        // Save the modified PDF
+        const modifiedPdfBytes = await pdfDoc.save();
+        
+        // Create a blob from the PDF bytes
+        const blob = new Blob([modifiedPdfBytes], { type: 'application/pdf' });
+        const url = URL.createObjectURL(blob);
+        
+        // Set the PDF preview
+        document.getElementById('pdfPreview').src = url;
+        document.getElementById('pdfContainer').style.display = 'block';
+        
+        // Set up download button
+        document.getElementById('downloadPdfBtn').onclick = function() {
+          download(modifiedPdfBytes, 'filled_consent_form.pdf', 'application/pdf');
+        };
+        
+        // Set up print button
+        document.getElementById('printPdfBtn').onclick = function() {
+          const iframe = document.getElementById('pdfPreview');
+          iframe.contentWindow.focus();
+          iframe.contentWindow.print();
+        };
+        
+        showStatus('success', texts.pdfSuccess);
+        
+      } catch (error) {
+        console.error('Error processing PDF:', error);
+        showStatus('error', texts.pdfError + error.message);
+      }
+    }
+
+    // Helper function to show status messages
+    function showStatus(type, message) {
+      const statusElement = document.getElementById('status');
+      statusElement.className = type;
+      statusElement.style.display = 'block';
+      
+      if (type === 'loading') {
+        statusElement.innerHTML = `<div class="spinner"></div> ${message}`;
+      } else {
+        statusElement.textContent = message;
+      }
+      
+      // Auto-hide non-loading status after 5 seconds
+      if (type !== 'loading') {
+        setTimeout(() => {
+          statusElement.style.display = 'none';
+        }, 5000);
+      }
+    }
+
+    // Add JavaScript validation for numeric-only phone fields
+    const phoneFields = ['telDomicile', 'telTravail', 'telAutre'];
+    
+    phoneFields.forEach(fieldId => {
+      const field = document.getElementById(fieldId);
+      
+      field.addEventListener('input', function(e) {
+        // Remove any non-numeric characters
+        const numericValue = this.value.replace(/[^0-9]/g, '');
+        
+        // Update the field value if it changed
+        if (this.value !== numericValue) {
+          this.value = numericValue;
+          
+          // Update the character counter
+          const counterElement = document.getElementById(`${fieldId}Counter`);
+          if (counterElement) {
+            counterElement.textContent = numericValue.length;
+          }
+        }
+      });
+    });
+
+    // Character counter functionality
+    const textInputs = [
+      { id: 'nom', maxLength: 40 },
+      { id: 'prenoms', maxLength: 40 },
+      { id: 'nomNaissance', maxLength: 50 },
+      { id: 'autreNoms', maxLength: 60 },
+      { id: 'nomMere', maxLength: 50 },
+      { id: 'adresse', maxLength: 80 },
+      { id: 'ville', maxLength: 70 },
+      { id: 'telDomicile', maxLength: 20 },
+      { id: 'telTravail', maxLength: 20 },
+      { id: 'telAutre', maxLength: 20 },
+      { id: 'infractionDetails', maxLength: 150 }
+    ];
+
+    // Add input event listeners to update character counters
+    textInputs.forEach(input => {
+      const inputElement = document.getElementById(input.id);
+      const counterElement = document.getElementById(`${input.id}Counter`);
+      
+      if (inputElement && counterElement) {
+        // Update counter initially
+        counterElement.textContent = inputElement.value.length;
+        
+        // Add input event listener
+        inputElement.addEventListener('input', function() {
+          counterElement.textContent = this.value.length;
+          
+          // Change counter color when approaching limit
+          const charCount = this.value.length;
+          const percent = charCount / input.maxLength;
+          
+          if (percent >= 0.9) {
+            counterElement.parentElement.style.color = '#dc3545'; // Red when near limit
+          } else if (percent >= 0.7) {
+            counterElement.parentElement.style.color = '#fd7e14'; // Orange when getting close
+          } else {
+            counterElement.parentElement.style.color = '#6c757d'; // Default gray
+          }
+        });
+      }
+    });
+
+    // Attach event listener to fill PDF button
+    document.getElementById('fillPdfBtn').addEventListener('click', fillPDF);
+    
+    // Initialize language to English
+    setLanguage('english');
+  </script>
+</body>
+</html>
