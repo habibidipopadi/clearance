@@ -134,32 +134,6 @@
     .signature-actions {
       margin-top: 10px;
     }
-    .tab-container {
-      margin-bottom: 20px;
-    }
-    .tab-buttons {
-      display: flex;
-      gap: 5px;
-      margin-bottom: 10px;
-    }
-    .tab-button {
-      padding: 8px 16px;
-      border: 1px solid #ddd;
-      background-color: #f5f5f5;
-      cursor: pointer;
-      border-radius: 4px 4px 0 0;
-    }
-    .tab-button.active {
-      background-color: #0056b3;
-      color: white;
-      border-color: #0056b3;
-    }
-    .tab-content {
-      display: none;
-    }
-    .tab-content.active {
-      display: block;
-    }
     .note {
       background-color: #fff3cd;
       border: 1px solid #ffeeba;
@@ -252,150 +226,130 @@
   </div>
   
   <div class="note" id="noteContent">
-    <p><strong id="noteLabel">Note:</strong> <span id="noteText">This tool will overlay your data on the official Quebec Background Check Form PDF. To ensure accurate placement, please make sure to upload the exact form referenced in this application.</span></p>
+    <p><strong id="noteLabel">Note:</strong> <span id="noteText">Fill out the form below and your completed PDF will be automatically generated using the official Quebec Background Check Form.</span></p>
   </div>
 
-  <div class="tab-container">
-    <div class="tab-buttons">
-      <div class="tab-button active" data-tab="form" id="formTabButton">Consent Form</div>
-      <div class="tab-button" data-tab="upload" id="uploadTabButton">Upload PDF</div>
+  <div class="form-section">
+    <h2 id="personalInfoTitle">Personal Information</h2>
+    <div class="form-group">
+      <label for="nom" id="lastNameLabel">Last Name:</label>
+      <input type="text" id="nom" maxlength="40">
+      <small class="char-counter"><span id="nomCounter">0</span>/40</small>
     </div>
-    
-    <div id="form-tab" class="tab-content active">
-      <div class="form-section">
-        <h2 id="personalInfoTitle">Personal Information</h2>
-        <div class="form-group">
-          <label for="nom" id="lastNameLabel">Last Name:</label>
-          <input type="text" id="nom" maxlength="40">
-          <small class="char-counter"><span id="nomCounter">0</span>/40</small>
+    <div class="form-group">
+      <label for="prenoms" id="firstNameLabel">First Name:</label>
+      <input type="text" id="prenoms" maxlength="40">
+      <small class="char-counter"><span id="prenomsCounter">0</span>/40</small>
+    </div>
+    <div class="form-group">
+      <label for="nomNaissance" id="birthNameLabel">Name on birth certificate (if different):</label>
+      <input type="text" id="nomNaissance" maxlength="50">
+      <small class="char-counter"><span id="nomNaissanceCounter">0</span>/50</small>
+    </div>
+    <div class="form-group">
+      <label for="autreNoms" id="otherNamesLabel">Any other names, first names or nicknames:</label>
+      <input type="text" id="autreNoms" maxlength="60">
+      <small class="char-counter"><span id="autreNomsCounter">0</span>/60</small>
+    </div>
+    <div class="form-group">
+      <label for="dateNaissance" id="dobLabel">Date of Birth (DD/MM/YYYY):</label>
+      <input type="date" id="dateNaissance">
+    </div>
+    <div class="form-group">
+      <label id="genderLabel">Gender:</label>
+      <div class="radio-group">
+        <div>
+          <input type="radio" id="sexeMasculin" name="sexe" value="Masculin">
+          <label for="sexeMasculin" id="maleLabel">Male</label>
         </div>
-        <div class="form-group">
-          <label for="prenoms" id="firstNameLabel">First Name:</label>
-          <input type="text" id="prenoms" maxlength="40">
-          <small class="char-counter"><span id="prenomsCounter">0</span>/40</small>
-        </div>
-        <div class="form-group">
-          <label for="nomNaissance" id="birthNameLabel">Name on birth certificate (if different):</label>
-          <input type="text" id="nomNaissance" maxlength="50">
-          <small class="char-counter"><span id="nomNaissanceCounter">0</span>/50</small>
-        </div>
-        <div class="form-group">
-          <label for="autreNoms" id="otherNamesLabel">Any other names, first names or nicknames:</label>
-          <input type="text" id="autreNoms" maxlength="60">
-          <small class="char-counter"><span id="autreNomsCounter">0</span>/60</small>
-        </div>
-        <div class="form-group">
-          <label for="dateNaissance" id="dobLabel">Date of Birth (DD/MM/YYYY):</label>
-          <input type="date" id="dateNaissance">
-        </div>
-        <div class="form-group">
-          <label id="genderLabel">Gender:</label>
-          <div class="radio-group">
-            <div>
-              <input type="radio" id="sexeMasculin" name="sexe" value="Masculin">
-              <label for="sexeMasculin" id="maleLabel">Male</label>
-            </div>
-            <div>
-              <input type="radio" id="sexeFeminin" name="sexe" value="Féminin">
-              <label for="sexeFeminin" id="femaleLabel">Female</label>
-            </div>
-          </div>
-        </div>
-        <div class="form-group">
-          <label for="nomMere" id="motherNameLabel">Mother's Full Name (First and Last):</label>
-          <input type="text" id="nomMere" maxlength="50">
-          <small class="char-counter"><span id="nomMereCounter">0</span>/50</small>
-        </div>
-        <div class="form-group">
-          <label for="adresse" id="addressLabel">Address - Number, Street, Apartment:</label>
-          <input type="text" id="adresse" maxlength="80">
-          <small class="char-counter"><span id="adresseCounter">0</span>/80</small>
-        </div>
-        <div class="form-group">
-          <label for="ville" id="cityLabel">City, Province, Postal Code:</label>
-          <input type="text" id="ville" maxlength="70">
-          <small class="char-counter"><span id="villeCounter">0</span>/70</small>
-        </div>
-        <div class="form-group">
-          <label for="dateAdresse" id="addressDateLabel">Since when have you lived at this address (DD/MM/YYYY):</label>
-          <input type="date" id="dateAdresse">
-        </div>
-        <div class="form-group">
-          <label for="telDomicile" id="homePhoneLabel">Home Phone:</label>
-          <input type="tel" id="telDomicile" maxlength="20" inputmode="numeric" pattern="[0-9]*">
-          <small class="char-counter"><span id="telDomicileCounter">0</span>/20</small>
-        </div>
-        <div class="form-group">
-          <label for="telTravail" id="workPhoneLabel">Work Phone:</label>
-          <input type="tel" id="telTravail" maxlength="20" inputmode="numeric" pattern="[0-9]*">
-          <small class="char-counter"><span id="telTravailCounter">0</span>/20</small>
-        </div>
-        <div class="form-group">
-          <label for="telAutre" id="otherPhoneLabel">Other Phone Number:</label>
-          <input type="tel" id="telAutre" maxlength="20" inputmode="numeric" pattern="[0-9]*">
-          <small class="char-counter"><span id="telAutreCounter">0</span>/20</small>
-        </div>
-        <div class="form-group">
-          <label id="crimeLabel">Have you ever been found guilty of a criminal offense in Canada or elsewhere, or are you currently facing prosecution for such an offense?</label>
-          <div class="radio-group">
-            <div>
-              <input type="radio" id="infNon" name="infraction" value="Non">
-              <label for="infNon" id="noLabel">No</label>
-            </div>
-            <div>
-              <input type="radio" id="infOui" name="infraction" value="Oui">
-              <label for="infOui" id="yesLabel">Yes</label>
-            </div>
-          </div>
-        </div>
-        <div class="form-group" id="infraDetail" style="display:none;">
-          <label for="infractionDetails" id="infractionDetailsLabel">If yes, please specify:</label>
-          <input type="text" id="infractionDetails" maxlength="150">
-          <small class="char-counter"><span id="infractionDetailsCounter">0</span>/150</small>
+        <div>
+          <input type="radio" id="sexeFeminin" name="sexe" value="Féminin">
+          <label for="sexeFeminin" id="femaleLabel">Female</label>
         </div>
       </div>
+    </div>
+    <div class="form-group">
+      <label for="nomMere" id="motherNameLabel">Mother's Full Name (First and Last):</label>
+      <input type="text" id="nomMere" maxlength="50">
+      <small class="char-counter"><span id="nomMereCounter">0</span>/50</small>
+    </div>
+    <div class="form-group">
+      <label for="adresse" id="addressLabel">Address - Number, Street, Apartment:</label>
+      <input type="text" id="adresse" maxlength="80">
+      <small class="char-counter"><span id="adresseCounter">0</span>/80</small>
+    </div>
+    <div class="form-group">
+      <label for="ville" id="cityLabel">City, Province, Postal Code:</label>
+      <input type="text" id="ville" maxlength="70">
+      <small class="char-counter"><span id="villeCounter">0</span>/70</small>
+    </div>
+    <div class="form-group">
+      <label for="dateAdresse" id="addressDateLabel">Since when have you lived at this address (DD/MM/YYYY):</label>
+      <input type="date" id="dateAdresse">
+    </div>
+    <div class="form-group">
+      <label for="telDomicile" id="homePhoneLabel">Home Phone:</label>
+      <input type="tel" id="telDomicile" maxlength="20" inputmode="numeric" pattern="[0-9]*">
+      <small class="char-counter"><span id="telDomicileCounter">0</span>/20</small>
+    </div>
+    <div class="form-group">
+      <label for="telTravail" id="workPhoneLabel">Work Phone:</label>
+      <input type="tel" id="telTravail" maxlength="20" inputmode="numeric" pattern="[0-9]*">
+      <small class="char-counter"><span id="telTravailCounter">0</span>/20</small>
+    </div>
+    <div class="form-group">
+      <label for="telAutre" id="otherPhoneLabel">Other Phone Number:</label>
+      <input type="tel" id="telAutre" maxlength="20" inputmode="numeric" pattern="[0-9]*">
+      <small class="char-counter"><span id="telAutreCounter">0</span>/20</small>
+    </div>
+    <div class="form-group">
+      <label id="crimeLabel">Have you ever been found guilty of a criminal offense in Canada or elsewhere, or are you currently facing prosecution for such an offense?</label>
+      <div class="radio-group">
+        <div>
+          <input type="radio" id="infNon" name="infraction" value="Non">
+          <label for="infNon" id="noLabel">No</label>
+        </div>
+        <div>
+          <input type="radio" id="infOui" name="infraction" value="Oui">
+          <label for="infOui" id="yesLabel">Yes</label>
+        </div>
+      </div>
+    </div>
+    <div class="form-group" id="infraDetail" style="display:none;">
+      <label for="infractionDetails" id="infractionDetailsLabel">If yes, please specify:</label>
+      <input type="text" id="infractionDetails" maxlength="150">
+      <small class="char-counter"><span id="infractionDetailsCounter">0</span>/150</small>
+    </div>
+  </div>
 
-      <div class="form-section">
-        <h2 id="signatureTitle">Digital Signature</h2>
-        
-        <!-- Added consent text -->
-        <div class="form-group">
-          <div class="consent-text">
-            <p>I, the undersigned, hereby consent to the Directorate General of Correctional Services of the Ministry of Public Security collecting information about my judicial and correctional background. This information will be used solely for the security screening required to authorize my access to individuals, locations, and sensitive information. I have been informed that only persons duly authorized by the Directorate General of Correctional Services have access to this information.</p>
-            <p>I, the undersigned, understand that the verification of my judicial and correctional background by the Directorate General of Correctional Services is a prerequisite for authorizing my access to individuals, locations, and sensitive information. In addition, I agree to inform the Directorate General of Correctional Services of any conviction under a law in force in Quebec during my employment contract, internship, or visit.</p>
-          </div>
-        </div>
-        
-        <div class="form-group">
-          <label for="dateSignature" id="signDateLabel">Signature Date (DD/MM/YYYY):</label>
-          <input type="date" id="dateSignature">
-        </div>
-        <div class="form-group">
-          <label id="yourSignatureLabel">Your Signature:</label>
-          <div class="signature-pad">
-            <canvas id="signatureCanvas" width="600" height="150"></canvas>
-            <div class="signature-actions">
-              <button id="clearSignature" class="btn btn-secondary">Clear Signature</button>
-            </div>
-          </div>
-        </div>
+  <div class="form-section">
+    <h2 id="signatureTitle">Digital Signature</h2>
+    
+    <!-- Added consent text -->
+    <div class="form-group">
+      <div class="consent-text">
+        <p>I, the undersigned, hereby consent to the Directorate General of Correctional Services of the Ministry of Public Security collecting information about my judicial and correctional background. This information will be used solely for the security screening required to authorize my access to individuals, locations, and sensitive information. I have been informed that only persons duly authorized by the Directorate General of Correctional Services have access to this information.</p>
+        <p>I, the undersigned, understand that the verification of my judicial and correctional background by the Directorate General of Correctional Services is a prerequisite for authorizing my access to individuals, locations, and sensitive information. In addition, I agree to inform the Directorate General of Correctional Services of any conviction under a law in force in Quebec during my employment contract, internship, or visit.</p>
       </div>
     </div>
     
-    <div id="upload-tab" class="tab-content">
-      <div class="form-section">
-        <h2 id="uploadTitle">Upload PDF Form</h2>
-        <div class="form-group">
-          <label for="pdfFile" id="selectPdfLabel">Select the Quebec Background Check Form PDF:</label>
-          <input type="file" id="pdfFile" accept=".pdf">
+    <div class="form-group">
+      <label for="dateSignature" id="signDateLabel">Signature Date (DD/MM/YYYY):</label>
+      <input type="date" id="dateSignature">
+    </div>
+    <div class="form-group">
+      <label id="yourSignatureLabel">Your Signature:</label>
+      <div class="signature-pad">
+        <canvas id="signatureCanvas" width="600" height="150"></canvas>
+        <div class="signature-actions">
+          <button id="clearSignature" class="btn btn-secondary">Clear Signature</button>
         </div>
-        <p id="pdfInstructions">The form should match the official "Consentement à la vérification des antécédents judiciaires et correctionnels" document.</p>
       </div>
     </div>
   </div>
 
   <div>
-    <button type="button" id="fillPdfBtn" class="btn">Fill PDF Form</button>
+    <button type="button" id="fillPdfBtn" class="btn">Generate Completed Form</button>
     <button type="button" id="resetFormBtn" class="btn btn-secondary">Reset Form</button>
   </div>
 
@@ -417,9 +371,7 @@
       english: {
         pageTitle: "Quebec Background Check Form Filler",
         noteLabel: "Note:",
-        noteText: "This tool will overlay your data on the official Quebec Background Check Form PDF. To ensure accurate placement, please make sure to upload the exact form referenced in this application.",
-        formTabButton: "Consent Form",
-        uploadTabButton: "Upload PDF",
+        noteText: "Fill out the form below and your completed PDF will be automatically generated using the official Quebec Background Check Form.",
         personalInfoTitle: "Personal Information",
         lastNameLabel: "Last Name:",
         firstNameLabel: "First Name:",
@@ -444,31 +396,24 @@
         signDateLabel: "Signature Date (DD/MM/YYYY):",
         yourSignatureLabel: "Your Signature:",
         clearSignature: "Clear Signature",
-        uploadTitle: "Upload PDF Form",
-        selectPdfLabel: "Select the Quebec Background Check Form PDF:",
-        pdfInstructions: "The form should match the official \"Consentement à la vérification des antécédents judiciaires et correctionnels\" document.",
-        fillPdfBtn: "Fill PDF Form",
+        fillPdfBtn: "Generate Completed Form",
         resetFormBtn: "Reset Form",
         completedFormTitle: "Your completed form is ready!",
         downloadInstructions: "You can download this PDF using the button below, or print it directly from here.",
         downloadPdfBtn: "Download PDF",
         printPdfBtn: "Print PDF",
         // Status messages
-        processingMsg: "Processing... Please wait.",
-        pdfUploadSuccess: "PDF form uploaded successfully.",
-        invalidPdfError: "Please upload a valid PDF file.",
+        processingMsg: "Generating your form... Please wait.",
         signatureRequired: "Please sign the form before generating the PDF.",
-        pdfRequired: "Please upload the PDF form first.",
+        pdfLoadError: "Error loading the PDF template. Please try again.",
         signatureError: "Error adding signature to the PDF.",
-        pdfSuccess: "PDF form has been successfully filled!",
+        pdfSuccess: "PDF form has been successfully generated!",
         pdfError: "Error processing the PDF: "
       },
       french: {
         pageTitle: "Formulaire de vérification d'antécédents du Québec",
         noteLabel: "Remarque :",
-        noteText: "Cet outil superposera vos données sur le formulaire officiel de vérification des antécédents du Québec. Pour garantir un placement précis, veuillez vous assurer de télécharger le formulaire exact référencé dans cette application.",
-        formTabButton: "Formulaire de consentement",
-        uploadTabButton: "Télécharger PDF",
+        noteText: "Remplissez le formulaire ci-dessous et votre PDF complété sera automatiquement généré en utilisant le formulaire officiel de vérification des antécédents du Québec.",
         personalInfoTitle: "Informations personnelles",
         lastNameLabel: "Nom de famille :",
         firstNameLabel: "Prénom :",
@@ -493,23 +438,18 @@
         signDateLabel: "Date de signature (JJ/MM/AAAA) :",
         yourSignatureLabel: "Votre signature :",
         clearSignature: "Effacer la signature",
-        uploadTitle: "Télécharger le formulaire PDF",
-        selectPdfLabel: "Sélectionnez le formulaire PDF de vérification des antécédents du Québec :",
-        pdfInstructions: "Le formulaire doit correspondre au document officiel \"Consentement à la vérification des antécédents judiciaires et correctionnels\".",
-        fillPdfBtn: "Remplir le formulaire PDF",
+        fillPdfBtn: "Générer le formulaire complété",
         resetFormBtn: "Réinitialiser le formulaire",
         completedFormTitle: "Votre formulaire complété est prêt !",
         downloadInstructions: "Vous pouvez télécharger ce PDF en utilisant le bouton ci-dessous, ou l'imprimer directement à partir d'ici.",
         downloadPdfBtn: "Télécharger le PDF",
         printPdfBtn: "Imprimer le PDF",
         // Status messages
-        processingMsg: "Traitement en cours... Veuillez patienter.",
-        pdfUploadSuccess: "Formulaire PDF téléchargé avec succès.",
-        invalidPdfError: "Veuillez télécharger un fichier PDF valide.",
+        processingMsg: "Génération de votre formulaire... Veuillez patienter.",
         signatureRequired: "Veuillez signer le formulaire avant de générer le PDF.",
-        pdfRequired: "Veuillez d'abord télécharger le formulaire PDF.",
+        pdfLoadError: "Erreur lors du chargement du modèle PDF. Veuillez réessayer.",
         signatureError: "Erreur lors de l'ajout de la signature au PDF.",
-        pdfSuccess: "Le formulaire PDF a été rempli avec succès !",
+        pdfSuccess: "Le formulaire PDF a été généré avec succès !",
         pdfError: "Erreur lors du traitement du PDF : "
       }
     };
@@ -522,8 +462,6 @@
       document.getElementById('pageTitle').textContent = texts.pageTitle;
       document.getElementById('noteLabel').textContent = texts.noteLabel;
       document.getElementById('noteText').textContent = texts.noteText;
-      document.getElementById('formTabButton').textContent = texts.formTabButton;
-      document.getElementById('uploadTabButton').textContent = texts.uploadTabButton;
       document.getElementById('personalInfoTitle').textContent = texts.personalInfoTitle;
       document.getElementById('lastNameLabel').textContent = texts.lastNameLabel;
       document.getElementById('firstNameLabel').textContent = texts.firstNameLabel;
@@ -548,9 +486,6 @@
       document.getElementById('signDateLabel').textContent = texts.signDateLabel;
       document.getElementById('yourSignatureLabel').textContent = texts.yourSignatureLabel;
       document.getElementById('clearSignature').textContent = texts.clearSignature;
-      document.getElementById('uploadTitle').textContent = texts.uploadTitle;
-      document.getElementById('selectPdfLabel').textContent = texts.selectPdfLabel;
-      document.getElementById('pdfInstructions').textContent = texts.pdfInstructions;
       document.getElementById('fillPdfBtn').textContent = texts.fillPdfBtn;
       document.getElementById('resetFormBtn').textContent = texts.resetFormBtn;
       document.getElementById('completedFormTitle').textContent = texts.completedFormTitle;
@@ -566,25 +501,6 @@
     document.getElementById('languageToggle').addEventListener('change', function() {
       const language = this.checked ? 'french' : 'english';
       setLanguage(language);
-    });
-
-    // Initialize tab functionality
-    document.querySelectorAll('.tab-button').forEach(button => {
-      button.addEventListener('click', function() {
-        const tabId = this.getAttribute('data-tab');
-        
-        // Update button active state
-        document.querySelectorAll('.tab-button').forEach(btn => {
-          btn.classList.remove('active');
-        });
-        this.classList.add('active');
-        
-        // Update content visibility
-        document.querySelectorAll('.tab-content').forEach(content => {
-          content.classList.remove('active');
-        });
-        document.getElementById(tabId + '-tab').classList.add('active');
-      });
     });
 
     // Handle infraction details display
@@ -711,22 +627,23 @@
     // Variables to store PDF data
     let pdfBytes = null;
 
-    // Handle PDF file upload
-    document.getElementById('pdfFile').addEventListener('change', function(event) {
-      const file = event.target.files[0];
-      if (file && file.type === 'application/pdf') {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          pdfBytes = new Uint8Array(e.target.result);
-          const language = document.getElementById('languageToggle').checked ? 'french' : 'english';
-          showStatus('success', translations[language].pdfUploadSuccess);
-        };
-        reader.readAsArrayBuffer(file);
-      } else {
+    // Auto-load PDF on page load
+    async function loadPDF() {
+      try {
+        // Load the PDF from the same directory
+        const response = await fetch('./Provincial consent form.pdf');
+        if (!response.ok) {
+          throw new Error('PDF not found');
+        }
+        const arrayBuffer = await response.arrayBuffer();
+        pdfBytes = new Uint8Array(arrayBuffer);
+        console.log('PDF template loaded successfully');
+      } catch (error) {
+        console.error('Error loading PDF:', error);
         const language = document.getElementById('languageToggle').checked ? 'french' : 'english';
-        showStatus('error', translations[language].invalidPdfError);
+        showStatus('error', translations[language].pdfLoadError);
       }
-    });
+    }
 
     // Fill PDF function
     async function fillPDF() {
@@ -739,11 +656,12 @@
         return;
       }
       
-      // Validate PDF
+      // Check if PDF is loaded
       if (!pdfBytes) {
-        alert(texts.pdfRequired);
-        document.querySelectorAll('.tab-button')[1].click(); // Switch to upload tab
-        return;
+        await loadPDF();
+        if (!pdfBytes) {
+          return;
+        }
       }
       
       showStatus('loading', texts.processingMsg);
@@ -1016,8 +934,9 @@
     // Attach event listener to fill PDF button
     document.getElementById('fillPdfBtn').addEventListener('click', fillPDF);
     
-    // Initialize language to English
+    // Initialize language to English and load PDF
     setLanguage('english');
+    loadPDF();
   </script>
 </body>
 </html>
