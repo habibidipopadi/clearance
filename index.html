@@ -293,6 +293,16 @@
     .email-instructions li {
       margin-bottom: 5px;
     }
+    
+    .sheets-integration {
+      background-color: #e8f5e8;
+      border: 1px solid #c8e6c9;
+      border-radius: 4px;
+      padding: 10px;
+      margin-bottom: 20px;
+      color: #2e7d32;
+      font-size: 0.9em;
+    }
   </style>
 </head>
 <body>
@@ -312,6 +322,11 @@
     <p><strong id="noteLabel">Note:</strong> <span id="noteText">Fill out the form below and your completed PDF will be automatically generated using the official Quebec Background Check Form.</span></p>
   </div>
 
+  <!-- Google Sheets Integration Notice -->
+  <div class="sheets-integration">
+    <p id="sheetsNotice">📊 <strong>Automatic Tracking:</strong> Form submissions are automatically logged to Google Sheets for record keeping.</p>
+  </div>
+
   <!-- Workflow Information -->
   <div class="workflow-section">
     <h3 id="workflowTitle">📋 How It Works</h3>
@@ -319,9 +334,39 @@
       <li id="step1">Fill out the form and add your digital signature</li>
       <li id="step2">Generate your completed PDF form</li>
       <li id="step3">Download the PDF to your device</li>
-      <li id="step4">Click "Send Form" to open your email client</li>
+      <li id="step4">Click "Send Form" to open your email client and log submission</li>
       <li id="step5">Attach the PDF and send the email</li>
     </ul>
+  </div>
+
+  <!-- Involvement and Sobriety Information -->
+  <div class="form-section">
+    <h2 id="involvementTitle">Involvement Information</h2>
+    <div class="form-group">
+      <label for="sobrietyDate" id="sobrietyDateLabel">Sobriety Date:</label>
+      <input type="date" id="sobrietyDate">
+    </div>
+    <div class="form-group">
+      <label id="involvementLabel">How are you looking to get involved?</label>
+      <div style="margin-top: 10px;">
+        <div style="margin-bottom: 8px;">
+          <input type="checkbox" id="joinCFC" name="involvement">
+          <label for="joinCFC" id="joinCFCLabel" style="font-weight: normal; margin-left: 8px;">Join the CFC Committee</label>
+        </div>
+        <div style="margin-bottom: 8px;">
+          <input type="checkbox" id="speakFacility" name="involvement">
+          <label for="speakFacility" id="speakFacilityLabel" style="font-weight: normal; margin-left: 8px;">Speak at a Correctional Facility</label>
+        </div>
+        <div style="margin-bottom: 8px;">
+          <input type="checkbox" id="tempContact" name="involvement">
+          <label for="tempContact" id="tempContactLabel" style="font-weight: normal; margin-left: 8px;">Become a Temporary Contact for Bridging the Gap</label>
+        </div>
+        <div style="margin-bottom: 8px;">
+          <input type="checkbox" id="seekingInfo" name="involvement">
+          <label for="seekingInfo" id="seekingInfoLabel" style="font-weight: normal; margin-left: 8px;">Seeking information</label>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div class="form-section">
@@ -474,7 +519,7 @@
       <h4 id="instructionsTitle">📧 Email Instructions:</h4>
       <ol id="instructionsList">
         <li id="instruction1"><strong>Download the PDF first</strong></li>
-        <li id="instruction2">Click "Send Form" to open your email client</li>
+        <li id="instruction2">Click "Send Form" to open your email client and log submission</li>
         <li id="instruction3"><strong>⚠️ IMPORTANT: Attach the PDF file to the email</strong></li>
         <li id="instruction4">Send the email</li>
       </ol>
@@ -486,7 +531,7 @@
     <div class="button-group">
       <button id="downloadPdfBtn" class="btn">Download PDF</button>
       <button id="printPdfBtn" class="btn btn-secondary">Print PDF</button>
-      <a id="sendFormBtn" class="btn btn-success" href="#" target="_blank">📧 Send Form</a>
+      <button id="sendFormBtn" class="btn btn-success">📧 Send Form & Log Submission</button>
     </div>
     <div style="margin-top: 20px;">
       <iframe id="pdfPreview" class="pdf-preview"></iframe>
@@ -494,18 +539,29 @@
   </div>
 
   <script>
+    // Google Apps Script Web App URL - Connected to your Google Sheet
+    const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzS9mBLMpqy_LmSbWOjE3UmlK3lY7q0NqIXPQ_A4HE2l3WyiTdYSVxxg0kZ1rhbh83i/exec';
+
     // Language translations
     const translations = {
       english: {
         pageTitle: "Quebec Background Check Form Filler",
         noteLabel: "Note:",
         noteText: "Fill out the form below and your completed PDF will be automatically generated using the official Quebec Background Check Form.",
+        sheetsNotice: "📊 Automatic Tracking: Form submissions are automatically logged to Google Sheets for record keeping.",
         workflowTitle: "📋 How It Works",
         step1: "Fill out the form and add your digital signature",
         step2: "Generate your completed PDF form",
         step3: "Download the PDF to your device",
-        step4: "Click \"Send Form\" to open your email client",
+        step4: "Click \"Send Form\" to open your email client and log submission",
         step5: "Attach the PDF and send the email",
+        involvementTitle: "Involvement Information",
+        sobrietyDateLabel: "Sobriety Date:",
+        involvementLabel: "How are you looking to get involved?",
+        joinCFCLabel: "Join the CFC Committee",
+        speakFacilityLabel: "Speak at a Correctional Facility",
+        tempContactLabel: "Become a Temporary Contact for Bridging the Gap",
+        seekingInfoLabel: "Seeking information",
         personalInfoTitle: "Personal Information",
         lastNameLabel: "Last Name:",
         firstNameLabel: "First Name:",
@@ -540,12 +596,12 @@
         downloadInstructions: "Download your PDF and send it via email.",
         instructionsTitle: "📧 Email Instructions:",
         instruction1: "<strong>Download the PDF first</strong>",
-        instruction2: "Click \"Send Form\" to open your email client",
+        instruction2: "Click \"Send Form\" to open your email client and log submission",
         instruction3: "<strong>⚠️ IMPORTANT: Attach the PDF file to the email</strong>",
         instruction4: "Send the email",
         downloadPdfBtn: "Download PDF",
         printPdfBtn: "Print PDF",
-        sendFormBtn: "📧 Send Form",
+        sendFormBtn: "📧 Send Form & Log Submission",
         attachmentReminder: "📎 Remember: You must manually attach the PDF file before sending!",
         // Status messages
         processingMsg: "Generating your form... Please wait.",
@@ -553,18 +609,29 @@
         pdfLoadError: "Error loading the PDF template. Please try again.",
         signatureError: "Error adding signature to the PDF.",
         pdfSuccess: "PDF form has been successfully generated!",
-        pdfError: "Error processing the PDF: "
+        pdfError: "Error processing the PDF: ",
+        loggingSubmission: "Logging submission to Google Sheets...",
+        loggedSuccess: "Submission logged successfully!",
+        loggedError: "Error logging submission: "
       },
       french: {
         pageTitle: "Formulaire de vérification d'antécédents du Québec",
         noteLabel: "Remarque :",
         noteText: "Remplissez le formulaire ci-dessous et votre PDF complété sera automatiquement généré en utilisant le formulaire officiel de vérification des antécédents du Québec.",
+        sheetsNotice: "📊 Suivi automatique : Les soumissions de formulaires sont automatiquement enregistrées dans Google Sheets pour la tenue de dossiers.",
         workflowTitle: "📋 Comment ça marche",
         step1: "Remplissez le formulaire et ajoutez votre signature numérique",
         step2: "Générez votre formulaire PDF complété",
         step3: "Téléchargez le PDF sur votre appareil",
-        step4: "Cliquez sur \"Envoyer le formulaire\" pour ouvrir votre client de messagerie",
+        step4: "Cliquez sur \"Envoyer le formulaire\" pour ouvrir votre client de messagerie et enregistrer la soumission",
         step5: "Joignez le PDF et envoyez le courriel",
+        involvementTitle: "Informations sur l'implication",
+        sobrietyDateLabel: "Date de sobriété :",
+        involvementLabel: "Comment souhaitez-vous vous impliquer ?",
+        joinCFCLabel: "Rejoindre le comité CFC",
+        speakFacilityLabel: "Parler dans un établissement correctionnel",
+        tempContactLabel: "Devenir un contact temporaire pour combler l'écart",
+        seekingInfoLabel: "Recherche d'informations",
         personalInfoTitle: "Informations personnelles",
         lastNameLabel: "Nom de famille :",
         firstNameLabel: "Prénom :",
@@ -599,12 +666,12 @@
         downloadInstructions: "Téléchargez votre PDF et envoyez-le par courriel.",
         instructionsTitle: "📧 Instructions pour le courriel :",
         instruction1: "<strong>Téléchargez d'abord le PDF</strong>",
-        instruction2: "Cliquez sur \"Envoyer le formulaire\" pour ouvrir votre client de messagerie",
+        instruction2: "Cliquez sur \"Envoyer le formulaire\" pour ouvrir votre client de messagerie et enregistrer la soumission",
         instruction3: "<strong>⚠️ IMPORTANT : Joignez le fichier PDF au courriel</strong>",
         instruction4: "Envoyez le courriel",
         downloadPdfBtn: "Télécharger le PDF",
         printPdfBtn: "Imprimer le PDF",
-        sendFormBtn: "📧 Envoyer le formulaire",
+        sendFormBtn: "📧 Envoyer le formulaire et enregistrer",
         attachmentReminder: "📎 Rappel : Vous devez joindre manuellement le fichier PDF avant d'envoyer !",
         // Status messages
         processingMsg: "Génération de votre formulaire... Veuillez patienter.",
@@ -612,7 +679,10 @@
         pdfLoadError: "Erreur lors du chargement du modèle PDF. Veuillez réessayer.",
         signatureError: "Erreur lors de l'ajout de la signature au PDF.",
         pdfSuccess: "Le formulaire PDF a été généré avec succès !",
-        pdfError: "Erreur lors du traitement du PDF : "
+        pdfError: "Erreur lors du traitement du PDF : ",
+        loggingSubmission: "Enregistrement de la soumission dans Google Sheets...",
+        loggedSuccess: "Soumission enregistrée avec succès !",
+        loggedError: "Erreur lors de l'enregistrement de la soumission : "
       }
     };
 
@@ -628,12 +698,20 @@
       document.getElementById('pageTitle').textContent = texts.pageTitle;
       document.getElementById('noteLabel').textContent = texts.noteLabel;
       document.getElementById('noteText').textContent = texts.noteText;
+      document.getElementById('sheetsNotice').textContent = texts.sheetsNotice;
       document.getElementById('workflowTitle').textContent = texts.workflowTitle;
       document.getElementById('step1').textContent = texts.step1;
       document.getElementById('step2').textContent = texts.step2;
       document.getElementById('step3').textContent = texts.step3;
       document.getElementById('step4').textContent = texts.step4;
       document.getElementById('step5').textContent = texts.step5;
+      document.getElementById('involvementTitle').textContent = texts.involvementTitle;
+      document.getElementById('sobrietyDateLabel').textContent = texts.sobrietyDateLabel;
+      document.getElementById('involvementLabel').textContent = texts.involvementLabel;
+      document.getElementById('joinCFCLabel').textContent = texts.joinCFCLabel;
+      document.getElementById('speakFacilityLabel').textContent = texts.speakFacilityLabel;
+      document.getElementById('tempContactLabel').textContent = texts.tempContactLabel;
+      document.getElementById('seekingInfoLabel').textContent = texts.seekingInfoLabel;
       document.getElementById('personalInfoTitle').textContent = texts.personalInfoTitle;
       document.getElementById('lastNameLabel').textContent = texts.lastNameLabel;
       document.getElementById('firstNameLabel').textContent = texts.firstNameLabel;
@@ -1021,8 +1099,8 @@
           iframe.contentWindow.print();
         };
         
-        // Set up mailto link
-        updateMailtoLink();
+        // Set up send form button with Google Sheets integration
+        document.getElementById('sendFormBtn').onclick = sendFormAndLogSubmission;
         
         showStatus('success', texts.pdfSuccess);
         
@@ -1032,8 +1110,97 @@
       }
     }
 
-    // Update mailto link with form data
-    function updateMailtoLink() {
+    // Send form and log submission to Google Sheets
+    async function sendFormAndLogSubmission() {
+      const language = document.getElementById('languageToggle').checked ? 'french' : 'english';
+      const texts = translations[language];
+      
+      // Log submission to Google Sheets first
+      showStatus('loading', texts.loggingSubmission);
+      
+      try {
+        await logSubmissionToSheets();
+        showStatus('success', texts.loggedSuccess);
+        
+        // Wait a moment for user to see the success message
+        setTimeout(() => {
+          openMailtoLink();
+        }, 1000);
+        
+      } catch (error) {
+        console.error('Sheets logging error:', error);
+        showStatus('error', texts.loggedError + error.message);
+        
+        // Still open the mailto link even if logging fails
+        setTimeout(() => {
+          openMailtoLink();
+        }, 2000);
+      }
+    }
+
+    // Log submission to Google Sheets
+    async function logSubmissionToSheets() {
+      const userEmail = document.getElementById('userEmail').value || 'Not provided';
+      const userPhone = document.getElementById('phoneNumber').value || 'Not provided';
+      const applicantName = `${document.getElementById('prenoms').value} ${document.getElementById('nom').value}`;
+      const submissionDate = new Date().toISOString();
+      
+      // Get involvement checkboxes
+      const involvementOptions = [];
+      if (document.getElementById('joinCFC').checked) involvementOptions.push('Join the CFC Committee');
+      if (document.getElementById('speakFacility').checked) involvementOptions.push('Speak at a Correctional Facility');
+      if (document.getElementById('tempContact').checked) involvementOptions.push('Become a Temporary Contact for Bridging the Gap');
+      if (document.getElementById('seekingInfo').checked) involvementOptions.push('Seeking information');
+      
+      const formData = {
+        timestamp: submissionDate,
+        applicantName: applicantName,
+        sobrietyDate: document.getElementById('sobrietyDate').value,
+        involvement: involvementOptions.join(', '),
+        firstName: document.getElementById('prenoms').value,
+        lastName: document.getElementById('nom').value,
+        birthName: document.getElementById('nomNaissance').value,
+        otherNames: document.getElementById('autreNoms').value,
+        dateOfBirth: document.getElementById('dateNaissance').value,
+        gender: document.querySelector('input[name="sexe"]:checked')?.value || '',
+        motherName: document.getElementById('nomMere').value,
+        address: document.getElementById('adresse').value,
+        city: document.getElementById('ville').value,
+        addressDate: document.getElementById('dateAdresse').value,
+        homePhone: document.getElementById('telDomicile').value,
+        workPhone: document.getElementById('telTravail').value,
+        otherPhone: document.getElementById('telAutre').value,
+        criminalRecord: document.querySelector('input[name="infraction"]:checked')?.value || '',
+        criminalDetails: document.getElementById('infractionDetails').value,
+        signatureDate: document.getElementById('dateSignature').value,
+        userEmail: userEmail,
+        userPhone: userPhone,
+        submissionSource: window.location.href
+      };
+      
+      const response = await fetch(GOOGLE_SHEETS_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+        mode: 'cors'
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const result = await response.json();
+      if (result.status !== 'success') {
+        throw new Error(result.message || 'Unknown error occurred');
+      }
+      
+      return result;
+    }
+
+    // Open mailto link
+    function openMailtoLink() {
       const userEmail = document.getElementById('userEmail').value || 'your.email@example.com';
       const userPhone = document.getElementById('phoneNumber').value || 'Not provided';
       const applicantName = `${document.getElementById('prenoms').value} ${document.getElementById('nom').value}`;
@@ -1061,7 +1228,7 @@ Best regards,
 ${applicantName}`);
       
       const mailtoLink = `mailto:correctionalfacilities@aa87.org?subject=${subject}&body=${body}`;
-      document.getElementById('sendFormBtn').href = mailtoLink;
+      window.open(mailtoLink);
     }
 
     // Helper function to show status messages
