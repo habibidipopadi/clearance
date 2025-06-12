@@ -180,7 +180,8 @@
     input[type="text"],
     input[type="date"],
     input[type="tel"],
-    input[type="email"] {
+    input[type="email"],
+    select {
       padding: 12px 16px;
       border: 2px solid #e5e7eb;
       border-radius: 8px;
@@ -192,10 +193,15 @@
     input[type="text"]:focus,
     input[type="date"]:focus,
     input[type="tel"]:focus,
-    input[type="email"]:focus {
+    input[type="email"]:focus,
+    select:focus {
       outline: none;
       border-color: #3b82f6;
       box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    select {
+      cursor: pointer;
     }
 
     input::placeholder {
@@ -260,6 +266,7 @@
       display: flex;
       gap: 24px;
       margin-top: 8px;
+      flex-wrap: wrap;
     }
 
     .radio-item {
@@ -314,6 +321,49 @@
       font-weight: 400;
       cursor: pointer;
       flex: 1;
+    }
+
+    /* BTG Additional Fields Styling */
+    .btg-additional-fields {
+      margin-top: 24px;
+      padding: 20px;
+      background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+      border: 2px solid #f59e0b;
+      border-radius: 12px;
+      display: none;
+    }
+
+    .btg-additional-fields.visible {
+      display: block;
+      animation: slideDown 0.3s ease-out;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .btg-title {
+      color: #92400e;
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btg-description {
+      color: #78350f;
+      font-size: 14px;
+      margin-bottom: 20px;
+      line-height: 1.5;
     }
 
     .consent-section {
@@ -664,6 +714,11 @@
         border-left: none;
         border-right: none;
       }
+
+      .radio-group {
+        flex-direction: column;
+        gap: 12px;
+      }
     }
   </style>
 </head>
@@ -724,6 +779,64 @@
               <div class="checkbox-item">
                 <input type="checkbox" id="seekingInfo" name="involvement">
                 <label for="seekingInfo" id="seekingInfoLabel">Seeking information</label>
+              </div>
+            </div>
+
+            <!-- BTG Additional Fields Section -->
+            <div id="btgAdditionalFields" class="btg-additional-fields">
+              <div class="btg-title">
+                🌉 <span id="btgSectionTitle">Bridging the Gap - Additional Information</span>
+              </div>
+              <div class="btg-description" id="btgDescription">
+                As a Temporary Contact, you'll help bridge the gap between treatment and recovery by supporting individuals transitioning from correctional facilities back into the community.
+              </div>
+              
+              <div class="form-grid two-column">
+                <div class="form-group">
+                  <label for="stepsCompleted" id="stepsCompletedLabel">Have you completed your steps? <span class="required">*</span></label>
+                  <div class="radio-group">
+                    <div class="radio-item">
+                      <input type="radio" id="stepsYes" name="stepsCompleted" value="Yes">
+                      <label for="stepsYes" id="stepsYesLabel">Yes</label>
+                    </div>
+                    <div class="radio-item">
+                      <input type="radio" id="stepsNo" name="stepsCompleted" value="No">
+                      <label for="stepsNo" id="stepsNoLabel">No</label>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="travelDistance" id="travelDistanceLabel">Distance outside of your region willing to travel <span class="required">*</span></label>
+                  <div class="radio-group">
+                    <div class="radio-item">
+                      <input type="radio" id="travel5to10" name="travelDistance" value="5-10 km">
+                      <label for="travel5to10" id="travel5to10Label">5-10 km</label>
+                    </div>
+                    <div class="radio-item">
+                      <input type="radio" id="travel15to20" name="travelDistance" value="15-20 km">
+                      <label for="travel15to20" id="travel15to20Label">15-20 km</label>
+                    </div>
+                    <div class="radio-item">
+                      <input type="radio" id="travel25to30" name="travelDistance" value="25-30 km">
+                      <label for="travel25to30" id="travel25to30Label">25-30 km</label>
+                    </div>
+                    <div class="radio-item">
+                      <input type="radio" id="travelNoLimit" name="travelDistance" value="No limit">
+                      <label for="travelNoLimit" id="travelNoLimitLabel">No limit</label>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-group full-width">
+                  <label for="aaRegion" id="aaRegionLabel">Your AA Region <span class="required">*</span></label>
+                  <select id="aaRegion" name="aaRegion">
+                    <option value="" id="selectRegionOption">Select your region</option>
+                    <option value="Area 87: Greater Montreal" id="area87Option">Area 87: Greater Montreal</option>
+                    <option value="Area 88: South-East Quebec" id="area88Option">Area 88: South-East Quebec</option>
+                    <option value="Area 90: North-Western Quebec" id="area90Option">Area 90: North-Western Quebec</option>
+                  </select>
+                </div>
               </div>
             </div>
           </div>
@@ -1198,7 +1311,7 @@
     const phoneValidator = new PhoneValidator();
     const postalCodeValidator = new PostalCodeValidator();
     
-    // Language translations
+    // Language translations (enhanced with BTG fields)
     const translations = {
       english: {
         pageTitle: "Quebec Background Check Form",
@@ -1215,6 +1328,21 @@
         speakFacilityLabel: "Speak at a Correctional Facility",
         tempContactLabel: "Become a Temporary Contact for Bridging the Gap",
         seekingInfoLabel: "Seeking information",
+        btgSectionTitle: "Bridging the Gap - Additional Information",
+        btgDescription: "As a Temporary Contact, you'll help bridge the gap between treatment and recovery by supporting individuals transitioning from correctional facilities back into the community.",
+        stepsCompletedLabel: "Have you completed your steps?",
+        stepsYesLabel: "Yes",
+        stepsNoLabel: "No",
+        travelDistanceLabel: "Distance outside of your region willing to travel",
+        travel5to10Label: "5-10 km",
+        travel15to20Label: "15-20 km",
+        travel25to30Label: "25-30 km",
+        travelNoLimitLabel: "No limit",
+        aaRegionLabel: "Your AA Region",
+        selectRegionOption: "Select your region",
+        area87Option: "Area 87: Greater Montreal",
+        area88Option: "Area 88: South-East Quebec",
+        area90Option: "Area 90: North-Western Quebec",
         personalInfoTitle: "Personal Information",
         firstNameLabel: "First Name",
         lastNameLabel: "Last Name", 
@@ -1271,6 +1399,21 @@
         speakFacilityLabel: "Parler dans un établissement correctionnel",
         tempContactLabel: "Devenir un contact temporaire pour combler l'écart",
         seekingInfoLabel: "Recherche d'informations",
+        btgSectionTitle: "Combler l'écart - Informations supplémentaires",
+        btgDescription: "En tant que contact temporaire, vous aiderez à combler l'écart entre le traitement et la récupération en soutenant les personnes en transition des établissements correctionnels vers la communauté.",
+        stepsCompletedLabel: "Avez-vous complété vos étapes ?",
+        stepsYesLabel: "Oui",
+        stepsNoLabel: "Non",
+        travelDistanceLabel: "Distance à l'extérieur de votre région que vous êtes prêt à parcourir",
+        travel5to10Label: "5-10 km",
+        travel15to20Label: "15-20 km",
+        travel25to30Label: "25-30 km",
+        travelNoLimitLabel: "Sans limite",
+        aaRegionLabel: "Votre région AA",
+        selectRegionOption: "Sélectionnez votre région",
+        area87Option: "Zone 87 : Grand Montréal",
+        area88Option: "Zone 88 : Sud-Est du Québec",
+        area90Option: "Zone 90 : Nord-Ouest du Québec",
         personalInfoTitle: "Informations personnelles",
         firstNameLabel: "Prénom",
         lastNameLabel: "Nom de famille",
@@ -1342,6 +1485,20 @@
     document.getElementById('languageToggle').addEventListener('change', function() {
       const language = this.checked ? 'french' : 'english';
       setLanguage(language);
+    });
+
+    // BTG Additional Fields Toggle
+    document.getElementById('tempContact').addEventListener('change', function() {
+      const btgFields = document.getElementById('btgAdditionalFields');
+      if (this.checked) {
+        btgFields.classList.add('visible');
+      } else {
+        btgFields.classList.remove('visible');
+        // Clear BTG fields when unchecked
+        document.querySelectorAll('input[name="stepsCompleted"]').forEach(radio => radio.checked = false);
+        document.querySelectorAll('input[name="travelDistance"]').forEach(radio => radio.checked = false);
+        document.getElementById('aaRegion').value = '';
+      }
     });
 
     // Handle infraction details display
@@ -1452,6 +1609,37 @@
       }
     }
 
+    // Enhanced validation function for BTG fields
+    function validateBTGFields() {
+      const isBTGSelected = document.getElementById('tempContact').checked;
+      if (!isBTGSelected) return { valid: true, missingFields: [] };
+
+      const missingFields = [];
+
+      // Check steps completed
+      const stepsCompleted = document.querySelector('input[name="stepsCompleted"]:checked');
+      if (!stepsCompleted) {
+        missingFields.push('Steps completed');
+      }
+
+      // Check travel distance
+      const travelDistance = document.querySelector('input[name="travelDistance"]:checked');
+      if (!travelDistance) {
+        missingFields.push('Travel distance');
+      }
+
+      // Check AA region
+      const aaRegion = document.getElementById('aaRegion').value;
+      if (!aaRegion) {
+        missingFields.push('AA Region');
+      }
+
+      return {
+        valid: missingFields.length === 0,
+        missingFields: missingFields
+      };
+    }
+
     // Fill PDF function
     async function fillPDF() {
       const language = document.getElementById('languageToggle').checked ? 'french' : 'english';
@@ -1478,6 +1666,12 @@
       const infraction = document.querySelector('input[name="infraction"]:checked');
       if (!infraction) {
         missingFields.push('Criminal background question');
+      }
+
+      // Validate BTG fields if selected
+      const btgValidation = validateBTGFields();
+      if (!btgValidation.valid) {
+        missingFields.push(...btgValidation.missingFields);
       }
       
       // Check consent checkboxes
@@ -1658,14 +1852,14 @@
       }
     }
 
-    // Enhanced send form function with better user feedback
+    // Enhanced send form function with BTG data logging
     async function sendFormAndLogSubmission() {
       const language = document.getElementById('languageToggle').checked ? 'french' : 'english';
       
       showStatus('loading', 'Preparing submission...');
       
       try {
-        // Log to Google Sheets first
+        // Log to appropriate Google Sheets
         await logSubmissionToSheets();
         showStatus('success', 'Submission logged successfully!');
         
@@ -1828,7 +2022,7 @@ ${applicantName}`;
       statusElement.insertAdjacentHTML('afterend', instructionsHTML);
     }
 
-    // Log to Google Sheets
+    // Enhanced log to Google Sheets function that routes to BTG sheet if applicable
     async function logSubmissionToSheets() {
       const userEmail = document.getElementById('userEmail').value || 'Not provided';
       const applicantName = `${document.getElementById('prenoms').value} ${document.getElementById('nom').value}`;
@@ -1839,6 +2033,7 @@ ${applicantName}`;
       if (document.getElementById('tempContact').checked) involvementOptions.push('Become a Temporary Contact for Bridging the Gap');
       if (document.getElementById('seekingInfo').checked) involvementOptions.push('Seeking information');
       
+      // Prepare basic parameters
       const params = new URLSearchParams({
         applicantName: applicantName,
         firstName: document.getElementById('prenoms').value,
@@ -1850,6 +2045,14 @@ ${applicantName}`;
         userEmail: userEmail,
         userPhone: phoneValidator.cleanPhone(document.getElementById('telDomicile').value)
       });
+
+      // Add BTG-specific parameters if BTG is selected
+      if (document.getElementById('tempContact').checked) {
+        params.append('isBTG', 'true');
+        params.append('stepsCompleted', document.querySelector('input[name="stepsCompleted"]:checked')?.value || '');
+        params.append('travelDistance', document.querySelector('input[name="travelDistance"]:checked')?.value || '');
+        params.append('aaRegion', document.getElementById('aaRegion').value || '');
+      }
       
       const response = await fetch(`${GOOGLE_SHEETS_URL}?${params.toString()}`, {
         method: 'GET',
@@ -1880,6 +2083,11 @@ ${applicantName}`;
         document.querySelectorAll('input[type="checkbox"], input[type="radio"]').forEach(input => {
           input.checked = false;
         });
+
+        // Reset select fields
+        document.querySelectorAll('select').forEach(select => {
+          select.value = '';
+        });
         
         // Reset validation UI
         document.querySelectorAll('.phone-validation-icon').forEach(icon => {
@@ -1892,6 +2100,7 @@ ${applicantName}`;
         
         // Hide conditional fields
         document.getElementById('infraDetail').classList.add('hidden');
+        document.getElementById('btgAdditionalFields').classList.remove('visible');
         
         // Clear signature
         ctx.fillStyle = "white";
