@@ -51,6 +51,59 @@
       border-radius: 4px;
       box-sizing: border-box;
     }
+    
+    /* Enhanced phone number styles */
+    .phone-input-container {
+      position: relative;
+    }
+    
+    .phone-input {
+      padding-right: 40px;
+    }
+    
+    .phone-validation-icon {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 16px;
+      display: none;
+    }
+    
+    .phone-validation-icon.valid {
+      color: #28a745;
+      display: block;
+    }
+    
+    .phone-validation-icon.invalid {
+      color: #dc3545;
+      display: block;
+    }
+    
+    .phone-input.valid {
+      border-color: #28a745;
+      background-color: #f8fff9;
+    }
+    
+    .phone-input.invalid {
+      border-color: #dc3545;
+      background-color: #fff5f5;
+    }
+    
+    .phone-format-hint {
+      font-size: 11px;
+      color: #6c757d;
+      margin-top: 2px;
+      font-style: italic;
+    }
+    
+    .phone-error-message {
+      font-size: 12px;
+      color: #dc3545;
+      margin-top: 2px;
+      display: none;
+    }
+    
     .radio-group {
       display: flex;
       gap: 15px;
@@ -427,21 +480,44 @@
       <label for="dateAdresse" id="addressDateLabel">Since when have you lived at this address (DD/MM/YYYY):</label>
       <input type="date" id="dateAdresse">
     </div>
+    
+    <!-- Enhanced Phone Number Fields -->
     <div class="form-group">
       <label for="telDomicile" id="homePhoneLabel">Home Phone:</label>
-      <input type="tel" id="telDomicile" maxlength="20" inputmode="numeric" pattern="[0-9]*">
+      <div class="phone-input-container">
+        <input type="tel" id="telDomicile" class="phone-input" maxlength="20" 
+               placeholder="(514) 555-1234" autocomplete="tel-national">
+        <span class="phone-validation-icon" id="telDomicileIcon">✓</span>
+      </div>
+      <div class="phone-format-hint" id="telDomicileHint">Format: (XXX) XXX-XXXX or +1-XXX-XXX-XXXX</div>
+      <div class="phone-error-message" id="telDomicileError"></div>
       <small class="char-counter"><span id="telDomicileCounter">0</span>/20</small>
     </div>
+    
     <div class="form-group">
       <label for="telTravail" id="workPhoneLabel">Work Phone:</label>
-      <input type="tel" id="telTravail" maxlength="20" inputmode="numeric" pattern="[0-9]*">
+      <div class="phone-input-container">
+        <input type="tel" id="telTravail" class="phone-input" maxlength="20" 
+               placeholder="(514) 555-1234" autocomplete="tel-work">
+        <span class="phone-validation-icon" id="telTravailIcon">✓</span>
+      </div>
+      <div class="phone-format-hint" id="telTravailHint">Format: (XXX) XXX-XXXX or +1-XXX-XXX-XXXX</div>
+      <div class="phone-error-message" id="telTravailError"></div>
       <small class="char-counter"><span id="telTravailCounter">0</span>/20</small>
     </div>
+    
     <div class="form-group">
       <label for="telAutre" id="otherPhoneLabel">Other Phone Number:</label>
-      <input type="tel" id="telAutre" maxlength="20" inputmode="numeric" pattern="[0-9]*">
+      <div class="phone-input-container">
+        <input type="tel" id="telAutre" class="phone-input" maxlength="20" 
+               placeholder="(514) 555-1234" autocomplete="tel">
+        <span class="phone-validation-icon" id="telAutreIcon">✓</span>
+      </div>
+      <div class="phone-format-hint" id="telAutreHint">Format: (XXX) XXX-XXXX or +1-XXX-XXX-XXXX</div>
+      <div class="phone-error-message" id="telAutreError"></div>
       <small class="char-counter"><span id="telAutreCounter">0</span>/20</small>
     </div>
+    
     <div class="form-group">
       <label id="crimeLabel">Have you ever been found guilty of a criminal offense in Canada or elsewhere, or are you currently facing prosecution for such an offense?</label>
       <div class="radio-group">
@@ -500,7 +576,13 @@
     </div>
     <div class="form-group">
       <label for="phoneNumber" id="phoneLabel">Your Phone Number (optional):</label>
-      <input type="tel" id="phoneNumber" placeholder="(123) 456-7890">
+      <div class="phone-input-container">
+        <input type="tel" id="phoneNumber" class="phone-input" 
+               placeholder="(514) 555-1234" autocomplete="tel">
+        <span class="phone-validation-icon" id="phoneNumberIcon">✓</span>
+      </div>
+      <div class="phone-format-hint" id="phoneNumberHint">Format: (XXX) XXX-XXXX or +1-XXX-XXX-XXXX</div>
+      <div class="phone-error-message" id="phoneNumberError"></div>
     </div>
   </div>
 
@@ -540,7 +622,255 @@
 
   <script>
     // Google Apps Script Web App URL - Connected to your Google Sheet
-    const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbx4qNmKCpsZHVHF2EwDlD1wihJ3MQiRGtl_xaNBGr6v5IW5XX8WWLrLYRmT01iaNiXJ/exec';
+    const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbyrQIR__UHpMgygUXQONyf6ygIJ8m1CqLpT7WDKcaQx82SGknCdVO6CG3OdayiS-Udm/exec';
+    
+    // Enhanced Phone Number Validation System
+    class PhoneValidator {
+      constructor() {
+        // Canadian area codes (major ones)
+        this.canadianAreaCodes = [
+          '204', '226', '236', '249', '250', '289', '306', '343', '365', '403', '416', '418',
+          '431', '437', '438', '450', '506', '514', '519', '548', '579', '581', '587', '604',
+          '613', '639', '647', '672', '705', '709', '778', '780', '782', '807', '819', '825',
+          '867', '873', '902', '905'
+        ];
+      }
+
+      // Remove all non-numeric characters
+      cleanPhone(phone) {
+        return phone.replace(/\D/g, '');
+      }
+
+      // Format phone number as user types
+      formatPhoneInput(phone) {
+        const cleaned = this.cleanPhone(phone);
+        
+        if (cleaned.length === 0) return '';
+        
+        // Handle international format starting with 1
+        if (cleaned.startsWith('1') && cleaned.length > 1) {
+          const digits = cleaned.substring(1);
+          if (digits.length <= 3) {
+            return `+1-${digits}`;
+          } else if (digits.length <= 6) {
+            return `+1-${digits.substring(0, 3)}-${digits.substring(3)}`;
+          } else {
+            return `+1-${digits.substring(0, 3)}-${digits.substring(3, 6)}-${digits.substring(6, 10)}`;
+          }
+        }
+        
+        // Handle standard North American format
+        if (cleaned.length <= 3) {
+          return `(${cleaned}`;
+        } else if (cleaned.length <= 6) {
+          return `(${cleaned.substring(0, 3)}) ${cleaned.substring(3)}`;
+        } else {
+          return `(${cleaned.substring(0, 3)}) ${cleaned.substring(3, 6)}-${cleaned.substring(6, 10)}`;
+        }
+      }
+
+      // Validate phone number
+      validatePhone(phone) {
+        const cleaned = this.cleanPhone(phone);
+        
+        if (cleaned.length === 0) {
+          return { isValid: true, message: '', type: 'empty' };
+        }
+
+        // Check for international format (11 digits starting with 1)
+        if (cleaned.length === 11 && cleaned.startsWith('1')) {
+          const areaCode = cleaned.substring(1, 4);
+          const exchange = cleaned.substring(4, 7);
+          
+          // Validate area code
+          if (!this.canadianAreaCodes.includes(areaCode)) {
+            return { 
+              isValid: false, 
+              message: 'Invalid Canadian area code', 
+              type: 'invalid_area_code' 
+            };
+          }
+          
+          // Validate exchange (first digit can't be 0 or 1)
+          if (exchange.startsWith('0') || exchange.startsWith('1')) {
+            return { 
+              isValid: false, 
+              message: 'Invalid exchange code', 
+              type: 'invalid_exchange' 
+            };
+          }
+          
+          return { isValid: true, message: 'Valid Canadian number', type: 'canadian' };
+        }
+        
+        // Check for standard 10-digit format
+        if (cleaned.length === 10) {
+          const areaCode = cleaned.substring(0, 3);
+          const exchange = cleaned.substring(3, 6);
+          
+          // Validate area code
+          if (!this.canadianAreaCodes.includes(areaCode)) {
+            return { 
+              isValid: false, 
+              message: 'Invalid Canadian area code', 
+              type: 'invalid_area_code' 
+            };
+          }
+          
+          // Validate exchange
+          if (exchange.startsWith('0') || exchange.startsWith('1')) {
+            return { 
+              isValid: false, 
+              message: 'Invalid exchange code', 
+              type: 'invalid_exchange' 
+            };
+          }
+          
+          return { isValid: true, message: 'Valid Canadian number', type: 'canadian' };
+        }
+        
+        // Check for international numbers (allow 10-15 digits, not starting with 1)
+        if (cleaned.length >= 10 && cleaned.length <= 15 && !cleaned.startsWith('1')) {
+          return { isValid: true, message: 'Valid international number', type: 'international' };
+        }
+        
+        // Invalid length or format
+        if (cleaned.length < 10) {
+          return { 
+            isValid: false, 
+            message: 'Phone number too short', 
+            type: 'too_short' 
+          };
+        } else {
+          return { 
+            isValid: false, 
+            message: 'Invalid phone number format', 
+            type: 'invalid_format' 
+          };
+        }
+      }
+
+      // Setup phone field with validation
+      setupPhoneField(fieldId) {
+        const input = document.getElementById(fieldId);
+        const icon = document.getElementById(`${fieldId}Icon`);
+        const error = document.getElementById(`${fieldId}Error`);
+        const counter = document.getElementById(`${fieldId}Counter`);
+        
+        if (!input) return;
+
+        let lastValidValue = '';
+
+        input.addEventListener('input', (e) => {
+          const rawValue = e.target.value;
+          const formatted = this.formatPhoneInput(rawValue);
+          
+          // Update input value with formatting
+          if (formatted !== rawValue) {
+            const cursorPos = e.target.selectionStart;
+            e.target.value = formatted;
+            
+            // Adjust cursor position after formatting
+            const newCursorPos = this.calculateCursorPosition(rawValue, formatted, cursorPos);
+            e.target.setSelectionRange(newCursorPos, newCursorPos);
+          }
+          
+          // Validate the phone number
+          const validation = this.validatePhone(formatted);
+          this.updateFieldValidation(input, icon, error, counter, validation, formatted);
+          
+          // Store last valid value
+          if (validation.isValid || validation.type === 'empty') {
+            lastValidValue = formatted;
+          }
+        });
+
+        input.addEventListener('blur', (e) => {
+          const validation = this.validatePhone(e.target.value);
+          if (!validation.isValid && validation.type !== 'empty') {
+            // Optionally revert to last valid value on blur
+            // e.target.value = lastValidValue;
+            // this.updateFieldValidation(input, icon, error, counter, this.validatePhone(lastValidValue), lastValidValue);
+          }
+        });
+
+        // Prevent pasting invalid characters
+        input.addEventListener('paste', (e) => {
+          e.preventDefault();
+          const paste = (e.clipboardData || window.clipboardData).getData('text');
+          const cleaned = this.cleanPhone(paste);
+          const formatted = this.formatPhoneInput(cleaned);
+          e.target.value = formatted;
+          
+          const validation = this.validatePhone(formatted);
+          this.updateFieldValidation(input, icon, error, counter, validation, formatted);
+        });
+      }
+
+      // Calculate cursor position after formatting
+      calculateCursorPosition(oldValue, newValue, oldPos) {
+        const oldCleaned = this.cleanPhone(oldValue.substring(0, oldPos));
+        let newPos = 0;
+        let cleanedCount = 0;
+        
+        for (let i = 0; i < newValue.length && cleanedCount < oldCleaned.length; i++) {
+          if (/\d/.test(newValue[i])) {
+            cleanedCount++;
+          }
+          newPos = i + 1;
+        }
+        
+        return newPos;
+      }
+
+      // Update field validation UI
+      updateFieldValidation(input, icon, error, counter, validation, value) {
+        const cleaned = this.cleanPhone(value);
+        
+        // Update counter
+        if (counter) {
+          counter.textContent = cleaned.length;
+        }
+        
+        // Update validation UI
+        if (validation.type === 'empty') {
+          input.classList.remove('valid', 'invalid');
+          if (icon) {
+            icon.classList.remove('valid', 'invalid');
+          }
+          if (error) {
+            error.style.display = 'none';
+          }
+        } else if (validation.isValid) {
+          input.classList.add('valid');
+          input.classList.remove('invalid');
+          if (icon) {
+            icon.classList.add('valid');
+            icon.classList.remove('invalid');
+            icon.textContent = '✓';
+          }
+          if (error) {
+            error.style.display = 'none';
+          }
+        } else {
+          input.classList.add('invalid');
+          input.classList.remove('valid');
+          if (icon) {
+            icon.classList.add('invalid');
+            icon.classList.remove('valid');
+            icon.textContent = '⚠';
+          }
+          if (error) {
+            error.textContent = validation.message;
+            error.style.display = 'block';
+          }
+        }
+      }
+    }
+
+    // Initialize phone validator
+    const phoneValidator = new PhoneValidator();
+    
     // Language translations
     const translations = {
       english: {
@@ -693,7 +1023,7 @@
     function setLanguage(language) {
       const texts = translations[language];
       
-      // Update all text elements
+      // Update all text elements (keeping existing functionality)
       document.getElementById('pageTitle').textContent = texts.pageTitle;
       document.getElementById('noteLabel').textContent = texts.noteLabel;
       document.getElementById('noteText').textContent = texts.noteText;
@@ -862,10 +1192,20 @@
       // Reset all form fields
       document.querySelectorAll('input[type="text"], input[type="tel"], input[type="date"], input[type="email"]').forEach(input => {
         input.value = '';
+        input.classList.remove('valid', 'invalid');
       });
       
       document.querySelectorAll('input[type="checkbox"], input[type="radio"]').forEach(input => {
         input.checked = false;
+      });
+      
+      // Reset phone validation UI
+      document.querySelectorAll('.phone-validation-icon').forEach(icon => {
+        icon.classList.remove('valid', 'invalid');
+      });
+      
+      document.querySelectorAll('.phone-error-message').forEach(error => {
+        error.style.display = 'none';
       });
       
       // Hide conditional fields
@@ -905,7 +1245,7 @@
       }
     }
 
-    // Fill PDF function
+    // Fill PDF function (keeping existing implementation)
     async function fillPDF() {
       const language = document.getElementById('languageToggle').checked ? 'french' : 'english';
       const texts = translations[language];
@@ -960,9 +1300,11 @@
         const adresse = document.getElementById('adresse').value;
         const ville = document.getElementById('ville').value;
         const dateAdresse = formatDate(document.getElementById('dateAdresse').value);
-        const telDomicile = document.getElementById('telDomicile').value;
-        const telTravail = document.getElementById('telTravail').value;
-        const telAutre = document.getElementById('telAutre').value;
+        
+        // Get phone numbers (clean them for PDF)
+        const telDomicile = phoneValidator.cleanPhone(document.getElementById('telDomicile').value);
+        const telTravail = phoneValidator.cleanPhone(document.getElementById('telTravail').value);
+        const telAutre = phoneValidator.cleanPhone(document.getElementById('telAutre').value);
         
         const infraction = document.querySelector('input[name="infraction"]:checked');
         const infractionValue = infraction ? infraction.value : '';
@@ -1016,7 +1358,7 @@
           page.drawText(year, { x: 100, y: 530, size: 10, font });
         }
         
-        // Phone numbers
+        // Phone numbers (using cleaned versions)
         page.drawText(telDomicile, { x: 400, y: 536, size: 10, font });
         page.drawText(telTravail, { x: 390, y: 524, size: 10, font });
         page.drawText(telAutre, { x: 410, y: 516, size: 10, font });
@@ -1109,7 +1451,7 @@
       }
     }
 
-    // Send form and log submission to Google Sheets
+    // Send form and log submission to Google Sheets (keeping existing implementation)
     async function sendFormAndLogSubmission() {
       const language = document.getElementById('languageToggle').checked ? 'french' : 'english';
       const texts = translations[language];
@@ -1137,54 +1479,54 @@
       }
     }
 
-// CORS-Free submission function - replace your existing logSubmissionToSheets function
-async function logSubmissionToSheets() {
-  const userEmail = document.getElementById('userEmail').value || 'Not provided';
-  const userPhone = document.getElementById('phoneNumber').value || 'Not provided';
-  const applicantName = `${document.getElementById('prenoms').value} ${document.getElementById('nom').value}`;
-  
-  // Get involvement checkboxes
-  const involvementOptions = [];
-  if (document.getElementById('joinCFC').checked) involvementOptions.push('Join the CFC Committee');
-  if (document.getElementById('speakFacility').checked) involvementOptions.push('Speak at a Correctional Facility');
-  if (document.getElementById('tempContact').checked) involvementOptions.push('Become a Temporary Contact for Bridging the Gap');
-  if (document.getElementById('seekingInfo').checked) involvementOptions.push('Seeking information');
-  
-  // Prepare data as URL parameters (avoids CORS preflight)
-  const params = new URLSearchParams({
-    applicantName: applicantName,
-    firstName: document.getElementById('prenoms').value,
-    lastName: document.getElementById('nom').value,
-    gender: document.querySelector('input[name="sexe"]:checked')?.value || '',
-    sobrietyDate: document.getElementById('sobrietyDate').value,
-    involvement: involvementOptions.join(', '),
-    signatureDate: document.getElementById('dateSignature').value,
-    userEmail: userEmail,
-    userPhone: userPhone
-  });
-  
-  // Use GET request to avoid CORS preflight
-  const response = await fetch(`${GOOGLE_SHEETS_URL}?${params.toString()}`, {
-    method: 'GET',
-    mode: 'cors'
-  });
-  
-  if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
-  }
-  
-  const result = await response.json();
-  if (result.status !== 'success') {
-    throw new Error(result.message || 'Unknown error occurred');
-  }
-  
-  return result;
-}
+    // CORS-Free submission function
+    async function logSubmissionToSheets() {
+      const userEmail = document.getElementById('userEmail').value || 'Not provided';
+      const userPhone = phoneValidator.cleanPhone(document.getElementById('phoneNumber').value) || 'Not provided';
+      const applicantName = `${document.getElementById('prenoms').value} ${document.getElementById('nom').value}`;
+      
+      // Get involvement checkboxes
+      const involvementOptions = [];
+      if (document.getElementById('joinCFC').checked) involvementOptions.push('Join the CFC Committee');
+      if (document.getElementById('speakFacility').checked) involvementOptions.push('Speak at a Correctional Facility');
+      if (document.getElementById('tempContact').checked) involvementOptions.push('Become a Temporary Contact for Bridging the Gap');
+      if (document.getElementById('seekingInfo').checked) involvementOptions.push('Seeking information');
+      
+      // Prepare data as URL parameters (avoids CORS preflight)
+      const params = new URLSearchParams({
+        applicantName: applicantName,
+        firstName: document.getElementById('prenoms').value,
+        lastName: document.getElementById('nom').value,
+        gender: document.querySelector('input[name="sexe"]:checked')?.value || '',
+        sobrietyDate: document.getElementById('sobrietyDate').value,
+        involvement: involvementOptions.join(', '),
+        signatureDate: document.getElementById('dateSignature').value,
+        userEmail: userEmail,
+        userPhone: userPhone
+      });
+      
+      // Use GET request to avoid CORS preflight
+      const response = await fetch(`${GOOGLE_SHEETS_URL}?${params.toString()}`, {
+        method: 'GET',
+        mode: 'cors'
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const result = await response.json();
+      if (result.status !== 'success') {
+        throw new Error(result.message || 'Unknown error occurred');
+      }
+      
+      return result;
+    }
 
     // Open mailto link
     function openMailtoLink() {
       const userEmail = document.getElementById('userEmail').value || 'your.email@example.com';
-      const userPhone = document.getElementById('phoneNumber').value || 'Not provided';
+      const userPhone = phoneValidator.cleanPhone(document.getElementById('phoneNumber').value) || 'Not provided';
       const applicantName = `${document.getElementById('prenoms').value} ${document.getElementById('nom').value}`;
       const submissionDate = new Date().toLocaleDateString();
       
@@ -1233,29 +1575,6 @@ ${applicantName}`);
       }
     }
 
-    // Add JavaScript validation for numeric-only phone fields
-    const phoneFields = ['telDomicile', 'telTravail', 'telAutre'];
-    
-    phoneFields.forEach(fieldId => {
-      const field = document.getElementById(fieldId);
-      
-      field.addEventListener('input', function(e) {
-        // Remove any non-numeric characters
-        const numericValue = this.value.replace(/[^0-9]/g, '');
-        
-        // Update the field value if it changed
-        if (this.value !== numericValue) {
-          this.value = numericValue;
-          
-          // Update the character counter
-          const counterElement = document.getElementById(`${fieldId}Counter`);
-          if (counterElement) {
-            counterElement.textContent = numericValue.length;
-          }
-        }
-      });
-    });
-
     // Character counter functionality
     const textInputs = [
       { id: 'nom', maxLength: 40 },
@@ -1265,9 +1584,6 @@ ${applicantName}`);
       { id: 'nomMere', maxLength: 50 },
       { id: 'adresse', maxLength: 80 },
       { id: 'ville', maxLength: 70 },
-      { id: 'telDomicile', maxLength: 20 },
-      { id: 'telTravail', maxLength: 20 },
-      { id: 'telAutre', maxLength: 20 },
       { id: 'infractionDetails', maxLength: 150 }
     ];
 
@@ -1299,6 +1615,37 @@ ${applicantName}`);
       }
     });
 
+    // Initialize everything
+    document.addEventListener('DOMContentLoaded', function() {
+      // Setup enhanced phone validation for all phone fields
+      phoneValidator.setupPhoneField('telDomicile');
+      phoneValidator.setupPhoneField('telTravail');
+      phoneValidator.setupPhoneField('telAutre');
+      phoneValidator.setupPhoneField('phoneNumber');
+      
+      // Attach event listeners
+      document.getElementById('fillPdfBtn').addEventListener('click', fillPDF);
+      
+      // Initialize language to English and load PDF
+      setLanguage('english');
+      loadPDF();
+    });
+
+    // Also initialize on script load (fallback)
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function() {
+        phoneValidator.setupPhoneField('telDomicile');
+        phoneValidator.setupPhoneField('telTravail');
+        phoneValidator.setupPhoneField('telAutre');
+        phoneValidator.setupPhoneField('phoneNumber');
+      });
+    } else {
+      phoneValidator.setupPhoneField('telDomicile');
+      phoneValidator.setupPhoneField('telTravail');
+      phoneValidator.setupPhoneField('telAutre');
+      phoneValidator.setupPhoneField('phoneNumber');
+    }
+    
     // Attach event listeners
     document.getElementById('fillPdfBtn').addEventListener('click', fillPDF);
     
