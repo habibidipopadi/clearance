@@ -3,232 +3,77 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Quebec Background Check Form Filler</title>
+  <title>Quebec Background Check Form</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/downloadjs/1.4.8/download.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      line-height: 1.6;
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 20px;
-    }
-    .char-counter {
-      color: #6c757d;
-      font-size: 12px;
-      display: block;
-      text-align: right;
-      margin-top: 2px;
-    }
-    h1 {
-      text-align: center;
-      color: #333;
-    }
-    .form-section {
-      background-color: #f9f9f9;
-      border-radius: 5px;
-      padding: 15px;
-      margin-bottom: 20px;
-    }
-    .form-group {
-      margin-bottom: 15px;
-    }
-    label {
-      display: block;
-      font-weight: bold;
-      margin-bottom: 5px;
-    }
-    input[type="text"], 
-    input[type="date"],
-    input[type="tel"],
-    input[type="email"],
-    select {
-      width: 100%;
-      padding: 8px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
+    * {
+      margin: 0;
+      padding: 0;
       box-sizing: border-box;
     }
-    
-    /* Enhanced phone number styles */
-    .phone-input-container {
-      position: relative;
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      background-color: #f8fafc;
+      padding: 20px 0;
     }
-    
-    .phone-input {
-      padding-right: 40px;
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
     }
-    
-    .phone-validation-icon {
-      position: absolute;
-      right: 10px;
-      top: 50%;
-      transform: translateY(-50%);
-      font-size: 16px;
-      display: none;
-    }
-    
-    .phone-validation-icon.valid {
-      color: #28a745;
-      display: block;
-    }
-    
-    .phone-validation-icon.invalid {
-      color: #dc3545;
-      display: block;
-    }
-    
-    .phone-input.valid {
-      border-color: #28a745;
-      background-color: #f8fff9;
-    }
-    
-    .phone-input.invalid {
-      border-color: #dc3545;
-      background-color: #fff5f5;
-    }
-    
-    .phone-format-hint {
-      font-size: 11px;
-      color: #6c757d;
-      margin-top: 2px;
-      font-style: italic;
-    }
-    
-    .phone-error-message {
-      font-size: 12px;
-      color: #dc3545;
-      margin-top: 2px;
-      display: none;
-    }
-    
-    .radio-group {
-      display: flex;
-      gap: 15px;
-    }
-    .radio-group label {
-      font-weight: normal;
-    }
-    .btn {
-      background-color: #0056b3;
+
+    .header {
+      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
       color: white;
-      padding: 10px 15px;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 16px;
-      margin-right: 10px;
-      text-decoration: none;
-      display: inline-block;
+      padding: 32px;
       text-align: center;
     }
-    .btn:hover {
-      background-color: #003d7e;
-      color: white;
+
+    .header h1 {
+      font-size: 28px;
+      font-weight: 600;
+      margin-bottom: 8px;
     }
-    .btn-secondary {
-      background-color: #6c757d;
+
+    .header p {
+      opacity: 0.9;
+      font-size: 16px;
     }
-    .btn-secondary:hover {
-      background-color: #5a6268;
-    }
-    .btn-success {
-      background-color: #28a745;
-    }
-    .btn-success:hover {
-      background-color: #218838;
-    }
-    #status {
-      margin-top: 20px;
-      padding: 10px;
-      border-radius: 4px;
-      display: none;
-    }
-    .success {
-      background-color: #d4edda;
-      color: #155724;
-      border: 1px solid #c3e6cb;
-    }
-    .error {
-      background-color: #f8d7da;
-      color: #721c24;
-      border: 1px solid #f5c6cb;
-    }
-    .loading {
-      background-color: #e2e3e5;
-      color: #383d41;
-      border: 1px solid #d6d8db;
-    }
-    .spinner {
-      display: inline-block;
-      width: 20px;
-      height: 20px;
-      border: 3px solid rgba(0, 0, 0, 0.3);
-      border-radius: 50%;
-      border-top-color: #0056b3;
-      animation: spin 1s ease-in-out infinite;
-      margin-right: 10px;
-      vertical-align: middle;
-    }
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-    .pdf-container {
-      margin-top: 20px;
-      border: 1px solid #ddd;
-      padding: 10px;
-      text-align: center;
-      display: none;
-    }
-    .pdf-preview {
-      width: 100%;
-      height: 800px;
-      border: none;
-    }
-    #signatureCanvas {
-      border: 1px solid #ddd;
-      background-color: #fff;
-      cursor: crosshair;
-    }
-    .signature-pad {
-      margin-top: 10px;
-    }
-    .signature-actions {
-      margin-top: 10px;
-    }
-    .note {
-      background-color: #fff3cd;
-      border: 1px solid #ffeeba;
-      border-radius: 4px;
-      padding: 10px;
-      margin-bottom: 20px;
-      color: #856404;
-    }
-    
-    /* Language toggle switch styles */
-    .language-toggle-container {
+
+    .language-toggle {
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-bottom: 20px;
-      gap: 10px;
+      gap: 12px;
+      margin-top: 20px;
     }
+
     .language-label {
-      font-weight: bold;
+      font-weight: 500;
+      font-size: 14px;
     }
+
     .switch {
       position: relative;
-      display: inline-block;
-      width: 60px;
-      height: 34px;
+      width: 44px;
+      height: 24px;
     }
+
     .switch input {
       opacity: 0;
       width: 0;
       height: 0;
     }
+
     .slider {
       position: absolute;
       cursor: pointer;
@@ -236,398 +81,821 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background-color: #ccc;
-      transition: .4s;
-      border-radius: 34px;
+      background-color: rgba(255, 255, 255, 0.3);
+      transition: .3s;
+      border-radius: 24px;
     }
+
     .slider:before {
       position: absolute;
       content: "";
-      height: 26px;
-      width: 26px;
-      left: 4px;
-      bottom: 4px;
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
       background-color: white;
-      transition: .4s;
+      transition: .3s;
       border-radius: 50%;
     }
+
     input:checked + .slider {
-      background-color: #2196F3;
+      background-color: rgba(255, 255, 255, 0.5);
     }
-    input:focus + .slider {
-      box-shadow: 0 0 1px #2196F3;
-    }
+
     input:checked + .slider:before {
-      transform: translateX(26px);
+      transform: translateX(20px);
     }
-    
-    /* Added custom styles for consent text */
-    .consent-text {
-      background-color: #f5f5f5;
-      padding: 15px;
-      border-radius: 5px;
-      margin-bottom: 20px;
-      border-left: 4px solid #0056b3;
-      font-size: 0.95em;
-      line-height: 1.5;
+
+    .form-content {
+      padding: 40px;
     }
-    .consent-text p {
-      margin-bottom: 10px;
+
+    .section {
+      margin-bottom: 40px;
     }
-    
-    /* Email section styles */
-    .email-section {
-      border: 2px solid #28a745;
-      background-color: #f8fff9;
-    }
-    
-    .button-group {
+
+    .section-header {
       display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 24px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid #e5e7eb;
     }
-    
-    .email-note {
-      background-color: #d1ecf1;
-      border: 1px solid #bee5eb;
-      border-radius: 4px;
-      padding: 10px;
-      margin-bottom: 20px;
-      color: #0c5460;
-      font-size: 0.9em;
+
+    .section-number {
+      background: #3b82f6;
+      color: white;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 16px;
     }
-    
-    .workflow-section {
-      background-color: #e7f3ff;
-      border: 1px solid #b3d7ff;
-      border-radius: 5px;
-      padding: 15px;
-      margin-bottom: 20px;
+
+    .section-title {
+      font-size: 24px;
+      font-weight: 600;
+      color: #1f2937;
     }
-    
-    .workflow-steps {
-      list-style: none;
-      padding: 0;
+
+    .form-grid {
+      display: grid;
+      gap: 20px;
     }
-    
-    .workflow-steps li {
-      margin: 8px 0;
-      padding-left: 25px;
+
+    .form-grid.two-column {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    @media (max-width: 768px) {
+      .form-grid.two-column {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .form-group.full-width {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      font-weight: 500;
+      margin-bottom: 8px;
+      color: #374151;
+      font-size: 14px;
+    }
+
+    .required {
+      color: #ef4444;
+    }
+
+    input[type="text"],
+    input[type="date"],
+    input[type="tel"],
+    input[type="email"] {
+      padding: 12px 16px;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      font-size: 16px;
+      transition: all 0.2s;
+      background: white;
+    }
+
+    input[type="text"]:focus,
+    input[type="date"]:focus,
+    input[type="tel"]:focus,
+    input[type="email"]:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    input::placeholder {
+      color: #9ca3af;
+    }
+
+    .phone-input-container {
       position: relative;
     }
-    
-    .workflow-steps li:before {
-      content: "✓";
+
+    .phone-validation-icon {
       position: absolute;
-      left: 0;
-      color: #28a745;
-      font-weight: bold;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 16px;
+      display: none;
     }
-    
-    .email-instructions {
-      background-color: #fff3cd;
-      border: 1px solid #ffeeba;
-      border-radius: 4px;
-      padding: 15px;
-      margin: 15px 0;
-      color: #856404;
+
+    .phone-validation-icon.valid {
+      color: #10b981;
+      display: block;
     }
-    
-    .email-instructions h4 {
-      margin-top: 0;
-      color: #856404;
+
+    .phone-validation-icon.invalid {
+      color: #ef4444;
+      display: block;
     }
-    
-    .email-instructions ol {
-      margin-bottom: 0;
-      padding-left: 20px;
+
+    .phone-input.valid {
+      border-color: #10b981;
+      background-color: #f0fdf4;
     }
-    
-    .email-instructions li {
-      margin-bottom: 5px;
+
+    .phone-input.invalid {
+      border-color: #ef4444;
+      background-color: #fef2f2;
     }
-    
-    .sheets-integration {
-      background-color: #e8f5e8;
-      border: 1px solid #c8e6c9;
-      border-radius: 4px;
-      padding: 10px;
+
+    .phone-format-hint {
+      font-size: 12px;
+      color: #6b7280;
+      margin-top: 4px;
+      font-style: italic;
+    }
+
+    .phone-error-message {
+      font-size: 12px;
+      color: #ef4444;
+      margin-top: 4px;
+      display: none;
+    }
+
+    .char-counter {
+      font-size: 12px;
+      color: #6b7280;
+      text-align: right;
+      margin-top: 4px;
+    }
+
+    .radio-group {
+      display: flex;
+      gap: 24px;
+      margin-top: 8px;
+    }
+
+    .radio-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .radio-item input[type="radio"] {
+      width: 18px;
+      height: 18px;
+      accent-color: #3b82f6;
+    }
+
+    .radio-item label {
+      margin: 0;
+      font-weight: 400;
+      cursor: pointer;
+    }
+
+    .checkbox-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .checkbox-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      transition: all 0.2s;
+    }
+
+    .checkbox-item:hover {
+      border-color: #d1d5db;
+      background-color: #f9fafb;
+    }
+
+    .checkbox-item input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: #3b82f6;
+      margin-top: 2px;
+    }
+
+    .checkbox-item label {
+      margin: 0;
+      font-weight: 400;
+      cursor: pointer;
+      flex: 1;
+    }
+
+    .consent-section {
+      background: #f8fafc;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 24px;
+      margin: 24px 0;
+    }
+
+    .consent-text {
+      font-size: 14px;
+      line-height: 1.6;
+      color: #475569;
       margin-bottom: 20px;
-      color: #2e7d32;
-      font-size: 0.9em;
+    }
+
+    .consent-checkboxes {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .consent-checkbox {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .consent-checkbox input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: #3b82f6;
+      margin-top: 2px;
+    }
+
+    .consent-checkbox label {
+      font-weight: 500;
+      color: #374151;
+      cursor: pointer;
+      margin: 0;
+    }
+
+    .consent-description {
+      font-size: 14px;
+      color: #6b7280;
+      margin-top: 4px;
+      margin-left: 30px;
+    }
+
+    .signature-section {
+      border: 2px dashed #d1d5db;
+      border-radius: 12px;
+      padding: 24px;
+      text-align: center;
+      background: #fafafa;
+    }
+
+    .signature-canvas {
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      background: white;
+      cursor: crosshair;
+      width: 100%;
+      max-width: 600px;
+      height: 200px;
+    }
+
+    .signature-instructions {
+      margin-bottom: 16px;
+      color: #6b7280;
+      font-size: 14px;
+    }
+
+    .signature-actions {
+      margin-top: 16px;
+    }
+
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      justify-content: center;
+    }
+
+    .btn-primary {
+      background: #3b82f6;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #2563eb;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+
+    .btn-secondary {
+      background: #6b7280;
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      background: #4b5563;
+    }
+
+    .btn-success {
+      background: #10b981;
+      color: white;
+    }
+
+    .btn-success:hover {
+      background: #059669;
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: #374151;
+      border: 2px solid #e5e7eb;
+    }
+
+    .btn-outline:hover {
+      border-color: #3b82f6;
+      color: #3b82f6;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 32px;
+    }
+
+    .alert {
+      padding: 16px;
+      border-radius: 8px;
+      margin: 20px 0;
+      font-size: 14px;
+      display: none;
+    }
+
+    .alert.success {
+      background: #ecfdf5;
+      color: #065f46;
+      border: 1px solid #a7f3d0;
+    }
+
+    .alert.error {
+      background: #fef2f2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+
+    .alert.loading {
+      background: #f0f9ff;
+      color: #0c4a6e;
+      border: 1px solid #bae6fd;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(12, 74, 110, 0.3);
+      border-radius: 50%;
+      border-top-color: #0c4a6e;
+      animation: spin 1s ease-in-out infinite;
+      margin-right: 8px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .pdf-preview-section {
+      margin-top: 32px;
+      padding: 24px;
+      border: 2px solid #e5e7eb;
+      border-radius: 12px;
+      background: white;
+      text-align: center;
+      display: none;
+    }
+
+    .pdf-preview {
+      width: 100%;
+      height: 600px;
+      border: none;
+      border-radius: 8px;
+      margin-top: 20px;
+    }
+
+    .info-banner {
+      background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+      border: 1px solid #bfdbfe;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 32px;
+    }
+
+    .info-banner h3 {
+      color: #1d4ed8;
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+
+    .info-banner ul {
+      color: #1e40af;
+      font-size: 14px;
+      margin-left: 20px;
+    }
+
+    .info-banner li {
+      margin-bottom: 6px;
+    }
+
+    .email-section {
+      background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+      border: 2px solid #bbf7d0;
+      border-radius: 12px;
+      padding: 24px;
+      margin-top: 32px;
+    }
+
+    .email-section h3 {
+      color: #166534;
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        margin: 0 16px;
+        border-radius: 8px;
+      }
+      
+      .header {
+        padding: 24px 20px;
+      }
+      
+      .form-content {
+        padding: 24px 20px;
+      }
+      
+      .header h1 {
+        font-size: 24px;
+      }
+      
+      .button-group {
+        flex-direction: column;
+      }
+      
+      .btn {
+        width: 100%;
+      }
     }
   </style>
 </head>
 <body>
-  <h1 id="pageTitle">Quebec Background Check Form Filler</h1>
-  
-  <!-- Language Toggle -->
-  <div class="language-toggle-container">
-    <span class="language-label" id="englishLabel">English</span>
-    <label class="switch">
-      <input type="checkbox" id="languageToggle">
-      <span class="slider"></span>
-    </label>
-    <span class="language-label" id="frenchLabel">Français</span>
-  </div>
-  
-  <div class="note" id="noteContent">
-    <p><strong id="noteLabel">Note:</strong> <span id="noteText">Fill out the form below and your completed PDF will be automatically generated using the official Quebec Background Check Form.</span></p>
-  </div>
-
-  <!-- Google Sheets Integration Notice -->
-  <div class="sheets-integration">
-    <p id="sheetsNotice">📊 <strong>Automatic Tracking:</strong> Form submissions are automatically logged to Google Sheets for record keeping.</p>
-  </div>
-
-  <!-- Workflow Information -->
-  <div class="workflow-section">
-    <h3 id="workflowTitle">📋 How It Works</h3>
-    <ul class="workflow-steps">
-      <li id="step1">Fill out the form and add your digital signature</li>
-      <li id="step2">Generate your completed PDF form</li>
-      <li id="step3">Download the PDF to your device</li>
-      <li id="step4">Click "Send Form" to open your email client and log submission</li>
-      <li id="step5">Attach the PDF and send the email</li>
-    </ul>
-  </div>
-
-  <!-- Involvement and Sobriety Information -->
-  <div class="form-section">
-    <h2 id="involvementTitle">Involvement Information</h2>
-    <div class="form-group">
-      <label for="sobrietyDate" id="sobrietyDateLabel">Sobriety Date:</label>
-      <input type="date" id="sobrietyDate">
-    </div>
-    <div class="form-group">
-      <label id="involvementLabel">How are you looking to get involved?</label>
-      <div style="margin-top: 10px;">
-        <div style="margin-bottom: 8px;">
-          <input type="checkbox" id="joinCFC" name="involvement">
-          <label for="joinCFC" id="joinCFCLabel" style="font-weight: normal; margin-left: 8px;">Join the CFC Committee</label>
-        </div>
-        <div style="margin-bottom: 8px;">
-          <input type="checkbox" id="speakFacility" name="involvement">
-          <label for="speakFacility" id="speakFacilityLabel" style="font-weight: normal; margin-left: 8px;">Speak at a Correctional Facility</label>
-        </div>
-        <div style="margin-bottom: 8px;">
-          <input type="checkbox" id="tempContact" name="involvement">
-          <label for="tempContact" id="tempContactLabel" style="font-weight: normal; margin-left: 8px;">Become a Temporary Contact for Bridging the Gap</label>
-        </div>
-        <div style="margin-bottom: 8px;">
-          <input type="checkbox" id="seekingInfo" name="involvement">
-          <label for="seekingInfo" id="seekingInfoLabel" style="font-weight: normal; margin-left: 8px;">Seeking information</label>
-        </div>
+  <div class="container">
+    <div class="header">
+      <h1 id="pageTitle">Quebec Background Check Form</h1>
+      <p id="pageSubtitle">Complete your background verification form digitally</p>
+      
+      <div class="language-toggle">
+        <span class="language-label" id="englishLabel">English</span>
+        <label class="switch">
+          <input type="checkbox" id="languageToggle">
+          <span class="slider"></span>
+        </label>
+        <span class="language-label" id="frenchLabel">Français</span>
       </div>
     </div>
-  </div>
 
-  <div class="form-section">
-    <h2 id="personalInfoTitle">Personal Information</h2>
-    <div class="form-group">
-      <label for="nom" id="lastNameLabel">Last Name:</label>
-      <input type="text" id="nom" maxlength="40">
-      <small class="char-counter"><span id="nomCounter">0</span>/40</small>
-    </div>
-    <div class="form-group">
-      <label for="prenoms" id="firstNameLabel">First Name:</label>
-      <input type="text" id="prenoms" maxlength="40">
-      <small class="char-counter"><span id="prenomsCounter">0</span>/40</small>
-    </div>
-    <div class="form-group">
-      <label for="nomNaissance" id="birthNameLabel">Name on birth certificate (if different):</label>
-      <input type="text" id="nomNaissance" maxlength="50">
-      <small class="char-counter"><span id="nomNaissanceCounter">0</span>/50</small>
-    </div>
-    <div class="form-group">
-      <label for="autreNoms" id="otherNamesLabel">Any other names, first names or nicknames:</label>
-      <input type="text" id="autreNoms" maxlength="60">
-      <small class="char-counter"><span id="autreNomsCounter">0</span>/60</small>
-    </div>
-    <div class="form-group">
-      <label for="dateNaissance" id="dobLabel">Date of Birth (DD/MM/YYYY):</label>
-      <input type="date" id="dateNaissance">
-    </div>
-    <div class="form-group">
-      <label id="genderLabel">Gender:</label>
-      <div class="radio-group">
-        <div>
-          <input type="radio" id="sexeMasculin" name="sexe" value="Masculin">
-          <label for="sexeMasculin" id="maleLabel">Male</label>
+    <div class="form-content">
+      <div class="info-banner">
+        <h3 id="howItWorksTitle">📋 How It Works</h3>
+        <ul id="stepsList">
+          <li id="step1">Fill out the form and add your digital signature</li>
+          <li id="step2">Generate your completed PDF form</li>
+          <li id="step3">Download the PDF to your device</li>
+          <li id="step4">Submit via email to correctionalfacilities@aa87.org</li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <div class="section-header">
+          <div class="section-number">1</div>
+          <h2 class="section-title" id="involvementTitle">Involvement Information</h2>
         </div>
-        <div>
-          <input type="radio" id="sexeFeminin" name="sexe" value="Féminin">
-          <label for="sexeFeminin" id="femaleLabel">Female</label>
-        </div>
-      </div>
-    </div>
-    <div class="form-group">
-      <label for="nomMere" id="motherNameLabel">Mother's Full Name (First and Last):</label>
-      <input type="text" id="nomMere" maxlength="50">
-      <small class="char-counter"><span id="nomMereCounter">0</span>/50</small>
-    </div>
-    <div class="form-group">
-      <label for="adresse" id="addressLabel">Address - Number, Street, Apartment:</label>
-      <input type="text" id="adresse" maxlength="80">
-      <small class="char-counter"><span id="adresseCounter">0</span>/80</small>
-    </div>
-    <div class="form-group">
-      <label for="ville" id="cityLabel">City, Province, Postal Code:</label>
-      <input type="text" id="ville" maxlength="70">
-      <small class="char-counter"><span id="villeCounter">0</span>/70</small>
-    </div>
-    <div class="form-group">
-      <label for="dateAdresse" id="addressDateLabel">Since when have you lived at this address (DD/MM/YYYY):</label>
-      <input type="date" id="dateAdresse">
-    </div>
-    
-    <!-- Enhanced Phone Number Fields -->
-    <div class="form-group">
-      <label for="telDomicile" id="homePhoneLabel">Home Phone:</label>
-      <div class="phone-input-container">
-        <input type="tel" id="telDomicile" class="phone-input" maxlength="20" 
-               placeholder="(514) 555-1234" autocomplete="tel-national">
-        <span class="phone-validation-icon" id="telDomicileIcon">✓</span>
-      </div>
-      <div class="phone-format-hint" id="telDomicileHint">Format: (XXX) XXX-XXXX or +1-XXX-XXX-XXXX</div>
-      <div class="phone-error-message" id="telDomicileError"></div>
-      <small class="char-counter"><span id="telDomicileCounter">0</span>/20</small>
-    </div>
-    
-    <div class="form-group">
-      <label for="telTravail" id="workPhoneLabel">Work Phone:</label>
-      <div class="phone-input-container">
-        <input type="tel" id="telTravail" class="phone-input" maxlength="20" 
-               placeholder="(514) 555-1234" autocomplete="tel-work">
-        <span class="phone-validation-icon" id="telTravailIcon">✓</span>
-      </div>
-      <div class="phone-format-hint" id="telTravailHint">Format: (XXX) XXX-XXXX or +1-XXX-XXX-XXXX</div>
-      <div class="phone-error-message" id="telTravailError"></div>
-      <small class="char-counter"><span id="telTravailCounter">0</span>/20</small>
-    </div>
-    
-    <div class="form-group">
-      <label for="telAutre" id="otherPhoneLabel">Other Phone Number:</label>
-      <div class="phone-input-container">
-        <input type="tel" id="telAutre" class="phone-input" maxlength="20" 
-               placeholder="(514) 555-1234" autocomplete="tel">
-        <span class="phone-validation-icon" id="telAutreIcon">✓</span>
-      </div>
-      <div class="phone-format-hint" id="telAutreHint">Format: (XXX) XXX-XXXX or +1-XXX-XXX-XXXX</div>
-      <div class="phone-error-message" id="telAutreError"></div>
-      <small class="char-counter"><span id="telAutreCounter">0</span>/20</small>
-    </div>
-    
-    <div class="form-group">
-      <label id="crimeLabel">Have you ever been found guilty of a criminal offense in Canada or elsewhere, or are you currently facing prosecution for such an offense?</label>
-      <div class="radio-group">
-        <div>
-          <input type="radio" id="infNon" name="infraction" value="Non">
-          <label for="infNon" id="noLabel">No</label>
-        </div>
-        <div>
-          <input type="radio" id="infOui" name="infraction" value="Oui">
-          <label for="infOui" id="yesLabel">Yes</label>
+        
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="sobrietyDate" id="sobrietyDateLabel">Sobriety Date</label>
+            <input type="date" id="sobrietyDate">
+          </div>
+          
+          <div class="form-group full-width">
+            <label id="involvementLabel">How are you looking to get involved?</label>
+            <div class="checkbox-group">
+              <div class="checkbox-item">
+                <input type="checkbox" id="joinCFC" name="involvement">
+                <label for="joinCFC" id="joinCFCLabel">Join the CFC Committee</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="speakFacility" name="involvement">
+                <label for="speakFacility" id="speakFacilityLabel">Speak at a Correctional Facility</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="tempContact" name="involvement">
+                <label for="tempContact" id="tempContactLabel">Become a Temporary Contact for Bridging the Gap</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="seekingInfo" name="involvement">
+                <label for="seekingInfo" id="seekingInfoLabel">Seeking information</label>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-    <div class="form-group" id="infraDetail" style="display:none;">
-      <label for="infractionDetails" id="infractionDetailsLabel">If yes, please specify:</label>
-      <input type="text" id="infractionDetails" maxlength="150">
-      <small class="char-counter"><span id="infractionDetailsCounter">0</span>/150</small>
-    </div>
-  </div>
 
-  <div class="form-section">
-    <h2 id="signatureTitle">Digital Signature</h2>
-    
-    <!-- Added consent text -->
-    <div class="form-group">
-      <div class="consent-text">
-        <p>I, the undersigned, hereby consent to the Directorate General of Correctional Services of the Ministry of Public Security collecting information about my judicial and correctional background. This information will be used solely for the security screening required to authorize my access to individuals, locations, and sensitive information. I have been informed that only persons duly authorized by the Directorate General of Correctional Services have access to this information.</p>
-        <p>I, the undersigned, understand that the verification of my judicial and correctional background by the Directorate General of Correctional Services is a prerequisite for authorizing my access to individuals, locations, and sensitive information. In addition, I agree to inform the Directorate General of Correctional Services of any conviction under a law in force in Quebec during my employment contract, internship, or visit.</p>
-      </div>
-    </div>
-    
-    <div class="form-group">
-      <label for="dateSignature" id="signDateLabel">Signature Date (DD/MM/YYYY):</label>
-      <input type="date" id="dateSignature">
-    </div>
-    <div class="form-group">
-      <label id="yourSignatureLabel">Your Signature:</label>
-      <div class="signature-pad">
-        <canvas id="signatureCanvas" width="600" height="150"></canvas>
-        <div class="signature-actions">
-          <button id="clearSignature" class="btn btn-secondary">Clear Signature</button>
+      <div class="section">
+        <div class="section-header">
+          <div class="section-number">2</div>
+          <h2 class="section-title" id="personalInfoTitle">Personal Information</h2>
+        </div>
+        
+        <div class="form-grid two-column">
+          <div class="form-group">
+            <label for="prenoms" id="firstNameLabel">First Name <span class="required">*</span></label>
+            <input type="text" id="prenoms" maxlength="40" placeholder="First name">
+            <div class="char-counter"><span id="prenomsCounter">0</span>/40</div>
+          </div>
+          
+          <div class="form-group">
+            <label for="nom" id="lastNameLabel">Last Name <span class="required">*</span></label>
+            <input type="text" id="nom" maxlength="40" placeholder="Last name">
+            <div class="char-counter"><span id="nomCounter">0</span>/40</div>
+          </div>
+          
+          <div class="form-group">
+            <label for="nomNaissance" id="birthNameLabel">Name on birth certificate (if different)</label>
+            <input type="text" id="nomNaissance" maxlength="50" placeholder="Birth certificate name">
+            <div class="char-counter"><span id="nomNaissanceCounter">0</span>/50</div>
+          </div>
+          
+          <div class="form-group">
+            <label for="autreNoms" id="otherNamesLabel">Other names or nicknames</label>
+            <input type="text" id="autreNoms" maxlength="60" placeholder="Other names">
+            <div class="char-counter"><span id="autreNomsCounter">0</span>/60</div>
+          </div>
+          
+          <div class="form-group">
+            <label for="dateNaissance" id="dobLabel">Date of Birth <span class="required">*</span></label>
+            <input type="date" id="dateNaissance">
+          </div>
+          
+          <div class="form-group">
+            <label id="genderLabel">Gender <span class="required">*</span></label>
+            <div class="radio-group">
+              <div class="radio-item">
+                <input type="radio" id="sexeMasculin" name="sexe" value="Masculin">
+                <label for="sexeMasculin" id="maleLabel">Male</label>
+              </div>
+              <div class="radio-item">
+                <input type="radio" id="sexeFeminin" name="sexe" value="Féminin">
+                <label for="sexeFeminin" id="femaleLabel">Female</label>
+              </div>
+            </div>
+          </div>
+          
+          <div class="form-group full-width">
+            <label for="nomMere" id="motherNameLabel">Mother's Full Name (First and Last) <span class="required">*</span></label>
+            <input type="text" id="nomMere" maxlength="50" placeholder="Mother's full name">
+            <div class="char-counter"><span id="nomMereCounter">0</span>/50</div>
+          </div>
         </div>
       </div>
-    </div>
-  </div>
 
-  <!-- Email Submission Section -->
-  <div class="form-section email-section">
-    <h2 id="emailTitle">📧 Email Submission</h2>
-    <div class="email-note">
-      <p id="emailNote">After generating your PDF, use the "Send Form" button to open your email client with a pre-filled message to correctionalfacilities@aa87.org.</p>
-    </div>
-    <div class="form-group">
-      <label for="userEmail" id="emailLabel">Your Email Address:</label>
-      <input type="email" id="userEmail" placeholder="your.email@example.com">
-    </div>
-    <div class="form-group">
-      <label for="phoneNumber" id="phoneLabel">Your Phone Number (optional):</label>
-      <div class="phone-input-container">
-        <input type="tel" id="phoneNumber" class="phone-input" 
-               placeholder="(514) 555-1234" autocomplete="tel">
-        <span class="phone-validation-icon" id="phoneNumberIcon">✓</span>
+      <div class="section">
+        <div class="section-header">
+          <div class="section-number">3</div>
+          <h2 class="section-title" id="contactTitle">Contact Information</h2>
+        </div>
+        
+        <div class="form-grid">
+          <div class="form-group full-width">
+            <label for="adresse" id="addressLabel">Address <span class="required">*</span></label>
+            <input type="text" id="adresse" maxlength="80" placeholder="Street address">
+            <div class="char-counter"><span id="adresseCounter">0</span>/80</div>
+          </div>
+          
+          <div class="form-group">
+            <label for="ville" id="cityLabel">City <span class="required">*</span></label>
+            <input type="text" id="ville" maxlength="70" placeholder="City">
+            <div class="char-counter"><span id="villeCounter">0</span>/70</div>
+          </div>
+          
+          <div class="form-group">
+            <label for="postalCode" id="postalCodeLabel">Postal Code <span class="required">*</span></label>
+            <input type="text" id="postalCode" maxlength="7" placeholder="A1A 1A1">
+          </div>
+          
+          <div class="form-group">
+            <label for="dateAdresse" id="addressDateLabel">Living at this address since</label>
+            <input type="date" id="dateAdresse">
+          </div>
+          
+          <div class="form-group">
+            <label for="telDomicile" id="homePhoneLabel">Phone Number <span class="required">*</span></label>
+            <div class="phone-input-container">
+              <input type="tel" id="telDomicile" class="phone-input" maxlength="20" 
+                     placeholder="(555) 123-4567" autocomplete="tel-national">
+              <span class="phone-validation-icon" id="telDomicileIcon">✓</span>
+            </div>
+            <div class="phone-format-hint" id="telDomicileHint">Format: (XXX) XXX-XXXX or +1-XXX-XXX-XXXX</div>
+            <div class="phone-error-message" id="telDomicileError"></div>
+            <div class="char-counter"><span id="telDomicileCounter">0</span>/20</div>
+          </div>
+          
+          <div class="form-group">
+            <label for="userEmail" id="emailLabel">Email Address <span class="required">*</span></label>
+            <input type="email" id="userEmail" placeholder="your.email@example.com">
+          </div>
+          
+          <div class="form-group">
+            <label for="telTravail" id="workPhoneLabel">Work Phone</label>
+            <div class="phone-input-container">
+              <input type="tel" id="telTravail" class="phone-input" maxlength="20" 
+                     placeholder="(555) 123-4567" autocomplete="tel-work">
+              <span class="phone-validation-icon" id="telTravailIcon">✓</span>
+            </div>
+            <div class="phone-format-hint" id="telTravailHint">Format: (XXX) XXX-XXXX or +1-XXX-XXX-XXXX</div>
+            <div class="phone-error-message" id="telTravailError"></div>
+            <div class="char-counter"><span id="telTravailCounter">0</span>/20</div>
+          </div>
+          
+          <div class="form-group">
+            <label for="telAutre" id="otherPhoneLabel">Other Phone Number</label>
+            <div class="phone-input-container">
+              <input type="tel" id="telAutre" class="phone-input" maxlength="20" 
+                     placeholder="(555) 123-4567" autocomplete="tel">
+              <span class="phone-validation-icon" id="telAutreIcon">✓</span>
+            </div>
+            <div class="phone-format-hint" id="telAutreHint">Format: (XXX) XXX-XXXX or +1-XXX-XXX-XXXX</div>
+            <div class="phone-error-message" id="telAutreError"></div>
+            <div class="char-counter"><span id="telAutreCounter">0</span>/20</div>
+          </div>
+        </div>
       </div>
-      <div class="phone-format-hint" id="phoneNumberHint">Format: (XXX) XXX-XXXX or +1-XXX-XXX-XXXX</div>
-      <div class="phone-error-message" id="phoneNumberError"></div>
-    </div>
-  </div>
 
-  <div class="button-group">
-    <button type="button" id="fillPdfBtn" class="btn">Generate Completed Form</button>
-    <button type="button" id="resetFormBtn" class="btn btn-secondary">Reset Form</button>
-  </div>
+      <div class="section">
+        <div class="section-header">
+          <div class="section-number">4</div>
+          <h2 class="section-title" id="backgroundTitle">Background Information</h2>
+        </div>
+        
+        <div class="form-grid">
+          <div class="form-group full-width">
+            <label id="crimeLabel">Have you ever been found guilty of a criminal offense in Canada or elsewhere, or are you currently facing prosecution for such an offense? <span class="required">*</span></label>
+            <div class="radio-group">
+              <div class="radio-item">
+                <input type="radio" id="infNon" name="infraction" value="Non">
+                <label for="infNon" id="noLabel">No</label>
+              </div>
+              <div class="radio-item">
+                <input type="radio" id="infOui" name="infraction" value="Oui">
+                <label for="infOui" id="yesLabel">Yes</label>
+              </div>
+            </div>
+          </div>
+          
+          <div class="form-group full-width hidden" id="infraDetail">
+            <label for="infractionDetails" id="infractionDetailsLabel">If yes, please specify:</label>
+            <input type="text" id="infractionDetails" maxlength="150" placeholder="Please provide details">
+            <div class="char-counter"><span id="infractionDetailsCounter">0</span>/150</div>
+          </div>
+        </div>
+      </div>
 
-  <div id="status"></div>
+      <div class="section">
+        <div class="section-header">
+          <div class="section-number">5</div>
+          <h2 class="section-title" id="consentTitle">Consent & Digital Signature</h2>
+        </div>
+        
+        <div class="consent-section">
+          <div class="consent-text">
+            <p>I, the undersigned, hereby consent to the Directorate General of Correctional Services of the Ministry of Public Security collecting information about my judicial and correctional background. This information will be used solely for the security screening required to authorize my access to individuals, locations, and sensitive information.</p>
+            <p>I understand that the verification of my judicial and correctional background by the Directorate General of Correctional Services is a prerequisite for authorizing my access to individuals, locations, and sensitive information. I agree to inform the Directorate General of Correctional Services of any conviction under a law in force in Quebec during my employment contract, internship, or visit.</p>
+          </div>
+          
+          <div class="consent-checkboxes">
+            <div class="consent-checkbox">
+              <input type="checkbox" id="consentBackground" required>
+              <label for="consentBackground" id="consentBackgroundLabel">I consent to a background check</label>
+            </div>
+            <div class="consent-description" id="consentBackgroundDesc">
+              I authorize the organization to conduct a comprehensive background verification for speaking engagements at correctional facilities.
+            </div>
+            
+            <div class="consent-checkbox">
+              <input type="checkbox" id="consentData" required>
+              <label for="consentData" id="consentDataLabel">I consent to data processing</label>
+            </div>
+            <div class="consent-description" id="consentDataDesc">
+              I understand that my personal information will be processed and stored securely for verification purposes only.
+            </div>
+          </div>
+        </div>
+        
+        <div class="form-grid two-column">
+          <div class="form-group">
+            <label for="dateSignature" id="signDateLabel">Signature Date <span class="required">*</span></label>
+            <input type="date" id="dateSignature">
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label id="digitalSignatureLabel">Digital Signature <span class="required">*</span></label>
+          <div class="signature-section">
+            <div class="signature-instructions" id="signatureInstructions">
+              Use your mouse or finger to sign above / Utilisez votre souris ou votre doigt pour signer ci-dessus
+            </div>
+            <canvas id="signatureCanvas" class="signature-canvas" width="600" height="200"></canvas>
+            <div class="signature-actions">
+              <button id="clearSignature" class="btn btn-outline">🗑️ Clear / Effacer</button>
+            </div>
+          </div>
+        </div>
+      </div>
 
-  <div id="pdfContainer" class="pdf-container">
-    <h3 id="completedFormTitle">Your completed form is ready!</h3>
-    <p id="downloadInstructions">Download your PDF and send it via email.</p>
-    
-    <div class="email-instructions">
-      <h4 id="instructionsTitle">📧 Email Instructions:</h4>
-      <ol id="instructionsList">
-        <li id="instruction1"><strong>Download the PDF first</strong></li>
-        <li id="instruction2">Click "Send Form" to open your email client and log submission</li>
-        <li id="instruction3"><strong>⚠️ IMPORTANT: Attach the PDF file to the email</strong></li>
-        <li id="instruction4">Send the email</li>
-      </ol>
-      <p id="attachmentReminder" style="color: #d63384; font-weight: bold; margin-top: 10px;">
-        📎 Remember: You must manually attach the PDF file before sending!
-      </p>
-    </div>
-    
-    <div class="button-group">
-      <button id="downloadPdfBtn" class="btn">Download PDF</button>
-      <button id="printPdfBtn" class="btn btn-secondary">Print PDF</button>
-      <button id="sendFormBtn" class="btn btn-success">📧 Send Form & Log Submission</button>
-    </div>
-    <div style="margin-top: 20px;">
-      <iframe id="pdfPreview" class="pdf-preview"></iframe>
+      <div class="button-group">
+        <button type="button" id="fillPdfBtn" class="btn btn-primary">📄 Generate Completed Form</button>
+        <button type="button" id="resetFormBtn" class="btn btn-outline">🔄 Reset Form</button>
+      </div>
+
+      <div id="status" class="alert"></div>
+
+      <div id="pdfContainer" class="pdf-preview-section">
+        <h3 id="completedFormTitle">✅ Your completed form is ready!</h3>
+        <p id="downloadInstructions">Download your PDF and submit it via email.</p>
+        
+        <div class="email-section">
+          <h3 id="emailTitle">📧 Submit Your Form</h3>
+          <p id="emailInstructions">Click the button below to open your email client with a pre-filled message. Don't forget to attach the PDF file!</p>
+          <div class="button-group">
+            <button id="downloadPdfBtn" class="btn btn-primary">📥 Download PDF</button>
+            <button id="sendFormBtn" class="btn btn-success">📧 Submit Form</button>
+            <button id="printPdfBtn" class="btn btn-outline">🖨️ Print PDF</button>
+          </div>
+        </div>
+        
+        <iframe id="pdfPreview" class="pdf-preview"></iframe>
+      </div>
     </div>
   </div>
 
   <script>
-    // Google Apps Script Web App URL - Connected to your Google Sheet
+    // Google Apps Script Web App URL
     const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbyrQIR__UHpMgygUXQONyf6ygIJ8m1CqLpT7WDKcaQx82SGknCdVO6CG3OdayiS-Udm/exec';
     
     // Enhanced Phone Number Validation System
     class PhoneValidator {
       constructor() {
-        // Canadian area codes (major ones)
         this.canadianAreaCodes = [
           '204', '226', '236', '249', '250', '289', '306', '343', '365', '403', '416', '418',
           '431', '437', '438', '450', '506', '514', '519', '548', '579', '581', '587', '604',
@@ -636,18 +904,14 @@
         ];
       }
 
-      // Remove all non-numeric characters
       cleanPhone(phone) {
         return phone.replace(/\D/g, '');
       }
 
-      // Format phone number as user types
       formatPhoneInput(phone) {
         const cleaned = this.cleanPhone(phone);
-        
         if (cleaned.length === 0) return '';
         
-        // Handle international format starting with 1
         if (cleaned.startsWith('1') && cleaned.length > 1) {
           const digits = cleaned.substring(1);
           if (digits.length <= 3) {
@@ -659,7 +923,6 @@
           }
         }
         
-        // Handle standard North American format
         if (cleaned.length <= 3) {
           return `(${cleaned}`;
         } else if (cleaned.length <= 6) {
@@ -669,7 +932,6 @@
         }
       }
 
-      // Validate phone number
       validatePhone(phone) {
         const cleaned = this.cleanPhone(phone);
         
@@ -677,80 +939,47 @@
           return { isValid: true, message: '', type: 'empty' };
         }
 
-        // Check for international format (11 digits starting with 1)
         if (cleaned.length === 11 && cleaned.startsWith('1')) {
           const areaCode = cleaned.substring(1, 4);
           const exchange = cleaned.substring(4, 7);
           
-          // Validate area code
           if (!this.canadianAreaCodes.includes(areaCode)) {
-            return { 
-              isValid: false, 
-              message: 'Invalid Canadian area code', 
-              type: 'invalid_area_code' 
-            };
+            return { isValid: false, message: 'Invalid Canadian area code', type: 'invalid_area_code' };
           }
           
-          // Validate exchange (first digit can't be 0 or 1)
           if (exchange.startsWith('0') || exchange.startsWith('1')) {
-            return { 
-              isValid: false, 
-              message: 'Invalid exchange code', 
-              type: 'invalid_exchange' 
-            };
+            return { isValid: false, message: 'Invalid exchange code', type: 'invalid_exchange' };
           }
           
           return { isValid: true, message: 'Valid Canadian number', type: 'canadian' };
         }
         
-        // Check for standard 10-digit format
         if (cleaned.length === 10) {
           const areaCode = cleaned.substring(0, 3);
           const exchange = cleaned.substring(3, 6);
           
-          // Validate area code
           if (!this.canadianAreaCodes.includes(areaCode)) {
-            return { 
-              isValid: false, 
-              message: 'Invalid Canadian area code', 
-              type: 'invalid_area_code' 
-            };
+            return { isValid: false, message: 'Invalid Canadian area code', type: 'invalid_area_code' };
           }
           
-          // Validate exchange
           if (exchange.startsWith('0') || exchange.startsWith('1')) {
-            return { 
-              isValid: false, 
-              message: 'Invalid exchange code', 
-              type: 'invalid_exchange' 
-            };
+            return { isValid: false, message: 'Invalid exchange code', type: 'invalid_exchange' };
           }
           
           return { isValid: true, message: 'Valid Canadian number', type: 'canadian' };
         }
         
-        // Check for international numbers (allow 10-15 digits, not starting with 1)
         if (cleaned.length >= 10 && cleaned.length <= 15 && !cleaned.startsWith('1')) {
           return { isValid: true, message: 'Valid international number', type: 'international' };
         }
         
-        // Invalid length or format
         if (cleaned.length < 10) {
-          return { 
-            isValid: false, 
-            message: 'Phone number too short', 
-            type: 'too_short' 
-          };
+          return { isValid: false, message: 'Phone number too short', type: 'too_short' };
         } else {
-          return { 
-            isValid: false, 
-            message: 'Invalid phone number format', 
-            type: 'invalid_format' 
-          };
+          return { isValid: false, message: 'Invalid phone number format', type: 'invalid_format' };
         }
       }
 
-      // Setup phone field with validation
       setupPhoneField(fieldId) {
         const input = document.getElementById(fieldId);
         const icon = document.getElementById(`${fieldId}Icon`);
@@ -759,42 +988,21 @@
         
         if (!input) return;
 
-        let lastValidValue = '';
-
         input.addEventListener('input', (e) => {
           const rawValue = e.target.value;
           const formatted = this.formatPhoneInput(rawValue);
           
-          // Update input value with formatting
           if (formatted !== rawValue) {
             const cursorPos = e.target.selectionStart;
             e.target.value = formatted;
-            
-            // Adjust cursor position after formatting
             const newCursorPos = this.calculateCursorPosition(rawValue, formatted, cursorPos);
             e.target.setSelectionRange(newCursorPos, newCursorPos);
           }
           
-          // Validate the phone number
           const validation = this.validatePhone(formatted);
           this.updateFieldValidation(input, icon, error, counter, validation, formatted);
-          
-          // Store last valid value
-          if (validation.isValid || validation.type === 'empty') {
-            lastValidValue = formatted;
-          }
         });
 
-        input.addEventListener('blur', (e) => {
-          const validation = this.validatePhone(e.target.value);
-          if (!validation.isValid && validation.type !== 'empty') {
-            // Optionally revert to last valid value on blur
-            // e.target.value = lastValidValue;
-            // this.updateFieldValidation(input, icon, error, counter, this.validatePhone(lastValidValue), lastValidValue);
-          }
-        });
-
-        // Prevent pasting invalid characters
         input.addEventListener('paste', (e) => {
           e.preventDefault();
           const paste = (e.clipboardData || window.clipboardData).getData('text');
@@ -807,7 +1015,6 @@
         });
       }
 
-      // Calculate cursor position after formatting
       calculateCursorPosition(oldValue, newValue, oldPos) {
         const oldCleaned = this.cleanPhone(oldValue.substring(0, oldPos));
         let newPos = 0;
@@ -823,24 +1030,17 @@
         return newPos;
       }
 
-      // Update field validation UI
       updateFieldValidation(input, icon, error, counter, validation, value) {
         const cleaned = this.cleanPhone(value);
         
-        // Update counter
         if (counter) {
           counter.textContent = cleaned.length;
         }
         
-        // Update validation UI
         if (validation.type === 'empty') {
           input.classList.remove('valid', 'invalid');
-          if (icon) {
-            icon.classList.remove('valid', 'invalid');
-          }
-          if (error) {
-            error.style.display = 'none';
-          }
+          if (icon) icon.classList.remove('valid', 'invalid');
+          if (error) error.style.display = 'none';
         } else if (validation.isValid) {
           input.classList.add('valid');
           input.classList.remove('invalid');
@@ -849,9 +1049,7 @@
             icon.classList.remove('invalid');
             icon.textContent = '✓';
           }
-          if (error) {
-            error.style.display = 'none';
-          }
+          if (error) error.style.display = 'none';
         } else {
           input.classList.add('invalid');
           input.classList.remove('valid');
@@ -868,150 +1066,169 @@
       }
     }
 
-    // Initialize phone validator
+    // Canadian Postal Code Validator
+    class PostalCodeValidator {
+      validatePostalCode(postalCode) {
+        // Remove spaces and convert to uppercase
+        const cleaned = postalCode.replace(/\s/g, '').toUpperCase();
+        
+        // Canadian postal code format: A1A 1A1
+        const canadianPattern = /^[A-Z]\d[A-Z]\d[A-Z]\d$/;
+        
+        return canadianPattern.test(cleaned);
+      }
+
+      formatPostalCode(postalCode) {
+        const cleaned = postalCode.replace(/\s/g, '').toUpperCase();
+        
+        if (cleaned.length <= 3) {
+          return cleaned;
+        } else if (cleaned.length <= 6) {
+          return `${cleaned.substring(0, 3)} ${cleaned.substring(3)}`;
+        } else {
+          return `${cleaned.substring(0, 3)} ${cleaned.substring(3, 6)}`;
+        }
+      }
+
+      setupPostalCodeField(fieldId) {
+        const input = document.getElementById(fieldId);
+        if (!input) return;
+
+        input.addEventListener('input', (e) => {
+          const formatted = this.formatPostalCode(e.target.value);
+          e.target.value = formatted;
+
+          const isValid = this.validatePostalCode(formatted);
+          if (isValid) {
+            input.classList.add('valid');
+            input.classList.remove('invalid');
+          } else if (formatted.length > 0) {
+            input.classList.add('invalid');
+            input.classList.remove('valid');
+          } else {
+            input.classList.remove('valid', 'invalid');
+          }
+        });
+      }
+    }
+
+    // Initialize validators
     const phoneValidator = new PhoneValidator();
+    const postalCodeValidator = new PostalCodeValidator();
     
     // Language translations
     const translations = {
       english: {
-        pageTitle: "Quebec Background Check Form Filler",
-        noteLabel: "Note:",
-        noteText: "Fill out the form below and your completed PDF will be automatically generated using the official Quebec Background Check Form.",
-        sheetsNotice: "📊 Automatic Tracking: Form submissions are automatically logged to Google Sheets for record keeping.",
-        workflowTitle: "📋 How It Works",
+        pageTitle: "Quebec Background Check Form",
+        pageSubtitle: "Complete your background verification form digitally",
+        howItWorksTitle: "📋 How It Works",
         step1: "Fill out the form and add your digital signature",
-        step2: "Generate your completed PDF form",
+        step2: "Generate your completed PDF form", 
         step3: "Download the PDF to your device",
-        step4: "Click \"Send Form\" to open your email client and log submission",
-        step5: "Attach the PDF and send the email",
+        step4: "Submit via email to correctionalfacilities@aa87.org",
         involvementTitle: "Involvement Information",
-        sobrietyDateLabel: "Sobriety Date:",
+        sobrietyDateLabel: "Sobriety Date",
         involvementLabel: "How are you looking to get involved?",
         joinCFCLabel: "Join the CFC Committee",
         speakFacilityLabel: "Speak at a Correctional Facility",
         tempContactLabel: "Become a Temporary Contact for Bridging the Gap",
         seekingInfoLabel: "Seeking information",
         personalInfoTitle: "Personal Information",
-        lastNameLabel: "Last Name:",
-        firstNameLabel: "First Name:",
-        birthNameLabel: "Name on birth certificate (if different):",
-        otherNamesLabel: "Any other names, first names or nicknames:",
-        dobLabel: "Date of Birth (DD/MM/YYYY):",
-        genderLabel: "Gender:",
+        firstNameLabel: "First Name",
+        lastNameLabel: "Last Name", 
+        birthNameLabel: "Name on birth certificate (if different)",
+        otherNamesLabel: "Other names or nicknames",
+        dobLabel: "Date of Birth",
+        genderLabel: "Gender",
         maleLabel: "Male",
         femaleLabel: "Female",
-        motherNameLabel: "Mother's Full Name (First and Last):",
-        addressLabel: "Address - Number, Street, Apartment:",
-        cityLabel: "City, Province, Postal Code:",
-        addressDateLabel: "Since when have you lived at this address (DD/MM/YYYY):",
-        homePhoneLabel: "Home Phone:",
-        workPhoneLabel: "Work Phone:",
-        otherPhoneLabel: "Other Phone Number:",
+        motherNameLabel: "Mother's Full Name (First and Last)",
+        contactTitle: "Contact Information",
+        addressLabel: "Address",
+        cityLabel: "City",
+        postalCodeLabel: "Postal Code",
+        addressDateLabel: "Living at this address since",
+        homePhoneLabel: "Phone Number",
+        emailLabel: "Email Address",
+        workPhoneLabel: "Work Phone",
+        otherPhoneLabel: "Other Phone Number",
+        backgroundTitle: "Background Information",
         crimeLabel: "Have you ever been found guilty of a criminal offense in Canada or elsewhere, or are you currently facing prosecution for such an offense?",
         noLabel: "No",
         yesLabel: "Yes",
         infractionDetailsLabel: "If yes, please specify:",
-        signatureTitle: "Digital Signature",
-        signDateLabel: "Signature Date (DD/MM/YYYY):",
-        yourSignatureLabel: "Your Signature:",
-        clearSignature: "Clear Signature",
-        emailTitle: "📧 Email Submission",
-        emailNote: "After generating your PDF, use the \"Send Form\" button to open your email client with a pre-filled message to correctionalfacilities@aa87.org.",
-        emailLabel: "Your Email Address:",
-        phoneLabel: "Your Phone Number (optional):",
-        fillPdfBtn: "Generate Completed Form",
-        resetFormBtn: "Reset Form",
-        completedFormTitle: "Your completed form is ready!",
-        downloadInstructions: "Download your PDF and send it via email.",
-        instructionsTitle: "📧 Email Instructions:",
-        instruction1: "<strong>Download the PDF first</strong>",
-        instruction2: "Click \"Send Form\" to open your email client and log submission",
-        instruction3: "<strong>⚠️ IMPORTANT: Attach the PDF file to the email</strong>",
-        instruction4: "Send the email",
-        downloadPdfBtn: "Download PDF",
-        printPdfBtn: "Print PDF",
-        sendFormBtn: "📧 Send Form & Log Submission",
-        attachmentReminder: "📎 Remember: You must manually attach the PDF file before sending!",
-        // Status messages
+        consentTitle: "Consent & Digital Signature",
+        consentBackgroundLabel: "I consent to a background check",
+        consentBackgroundDesc: "I authorize the organization to conduct a comprehensive background verification for speaking engagements at correctional facilities.",
+        consentDataLabel: "I consent to data processing", 
+        consentDataDesc: "I understand that my personal information will be processed and stored securely for verification purposes only.",
+        signDateLabel: "Signature Date",
+        digitalSignatureLabel: "Digital Signature",
+        signatureInstructions: "Use your mouse or finger to sign above / Utilisez votre souris ou votre doigt pour signer ci-dessus",
+        completedFormTitle: "✅ Your completed form is ready!",
+        downloadInstructions: "Download your PDF and submit it via email.",
+        emailTitle: "📧 Submit Your Form",
+        emailInstructions: "Click the button below to open your email client with a pre-filled message. Don't forget to attach the PDF file!",
         processingMsg: "Generating your form... Please wait.",
         signatureRequired: "Please sign the form before generating the PDF.",
-        pdfLoadError: "Error loading the PDF template. Please try again.",
-        signatureError: "Error adding signature to the PDF.",
         pdfSuccess: "PDF form has been successfully generated!",
-        pdfError: "Error processing the PDF: ",
-        loggingSubmission: "Logging submission to Google Sheets...",
-        loggedSuccess: "Submission logged successfully!",
-        loggedError: "Error logging submission: "
+        pdfError: "Error processing the PDF: "
       },
       french: {
         pageTitle: "Formulaire de vérification d'antécédents du Québec",
-        noteLabel: "Remarque :",
-        noteText: "Remplissez le formulaire ci-dessous et votre PDF complété sera automatiquement généré en utilisant le formulaire officiel de vérification des antécédents du Québec.",
-        sheetsNotice: "📊 Suivi automatique : Les soumissions de formulaires sont automatiquement enregistrées dans Google Sheets pour la tenue de dossiers.",
-        workflowTitle: "📋 Comment ça marche",
+        pageSubtitle: "Complétez votre formulaire de vérification des antécédents numériquement",
+        howItWorksTitle: "📋 Comment ça marche",
         step1: "Remplissez le formulaire et ajoutez votre signature numérique",
         step2: "Générez votre formulaire PDF complété",
-        step3: "Téléchargez le PDF sur votre appareil",
-        step4: "Cliquez sur \"Envoyer le formulaire\" pour ouvrir votre client de messagerie et enregistrer la soumission",
-        step5: "Joignez le PDF et envoyez le courriel",
+        step3: "Téléchargez le PDF sur votre appareil", 
+        step4: "Soumettez par courriel à correctionalfacilities@aa87.org",
         involvementTitle: "Informations sur l'implication",
-        sobrietyDateLabel: "Date de sobriété :",
+        sobrietyDateLabel: "Date de sobriété",
         involvementLabel: "Comment souhaitez-vous vous impliquer ?",
         joinCFCLabel: "Rejoindre le comité CFC",
         speakFacilityLabel: "Parler dans un établissement correctionnel",
         tempContactLabel: "Devenir un contact temporaire pour combler l'écart",
         seekingInfoLabel: "Recherche d'informations",
         personalInfoTitle: "Informations personnelles",
-        lastNameLabel: "Nom de famille :",
-        firstNameLabel: "Prénom :",
-        birthNameLabel: "Nom sur l'acte de naissance (si différent) :",
-        otherNamesLabel: "Autres noms, prénoms ou surnoms :",
-        dobLabel: "Date de naissance (JJ/MM/AAAA) :",
-        genderLabel: "Sexe :",
+        firstNameLabel: "Prénom",
+        lastNameLabel: "Nom de famille",
+        birthNameLabel: "Nom sur l'acte de naissance (si différent)",
+        otherNamesLabel: "Autres noms ou surnoms",
+        dobLabel: "Date de naissance",
+        genderLabel: "Sexe",
         maleLabel: "Masculin",
-        femaleLabel: "Féminin",
-        motherNameLabel: "Nom complet de la mère (prénom et nom) :",
-        addressLabel: "Adresse - Numéro, rue, appartement :",
-        cityLabel: "Ville, province, code postal :",
-        addressDateLabel: "Depuis quand habitez-vous à cette adresse (JJ/MM/AAAA) :",
-        homePhoneLabel: "Téléphone domicile :",
-        workPhoneLabel: "Téléphone travail :",
-        otherPhoneLabel: "Autre numéro de téléphone :",
+        femaleLabel: "Féminin", 
+        motherNameLabel: "Nom complet de la mère (prénom et nom)",
+        contactTitle: "Informations de contact",
+        addressLabel: "Adresse",
+        cityLabel: "Ville",
+        postalCodeLabel: "Code postal",
+        addressDateLabel: "Habitant à cette adresse depuis",
+        homePhoneLabel: "Numéro de téléphone",
+        emailLabel: "Adresse courriel",
+        workPhoneLabel: "Téléphone travail",
+        otherPhoneLabel: "Autre numéro de téléphone",
+        backgroundTitle: "Informations sur les antécédents",
         crimeLabel: "Avez-vous déjà été reconnu coupable d'une infraction criminelle au Canada ou ailleurs, ou faites-vous actuellement l'objet de poursuites pour une telle infraction ?",
         noLabel: "Non",
         yesLabel: "Oui",
         infractionDetailsLabel: "Si oui, veuillez préciser :",
-        signatureTitle: "Signature numérique",
-        signDateLabel: "Date de signature (JJ/MM/AAAA) :",
-        yourSignatureLabel: "Votre signature :",
-        clearSignature: "Effacer la signature",
-        emailTitle: "📧 Soumission par courriel",
-        emailNote: "Après avoir généré votre PDF, utilisez le bouton \"Envoyer le formulaire\" pour ouvrir votre client de messagerie avec un message pré-rempli à correctionalfacilities@aa87.org.",
-        emailLabel: "Votre adresse courriel :",
-        phoneLabel: "Votre numéro de téléphone (optionnel) :",
-        fillPdfBtn: "Générer le formulaire complété",
-        resetFormBtn: "Réinitialiser le formulaire",
-        completedFormTitle: "Votre formulaire complété est prêt !",
-        downloadInstructions: "Téléchargez votre PDF et envoyez-le par courriel.",
-        instructionsTitle: "📧 Instructions pour le courriel :",
-        instruction1: "<strong>Téléchargez d'abord le PDF</strong>",
-        instruction2: "Cliquez sur \"Envoyer le formulaire\" pour ouvrir votre client de messagerie et enregistrer la soumission",
-        instruction3: "<strong>⚠️ IMPORTANT : Joignez le fichier PDF au courriel</strong>",
-        instruction4: "Envoyez le courriel",
-        downloadPdfBtn: "Télécharger le PDF",
-        printPdfBtn: "Imprimer le PDF",
-        sendFormBtn: "📧 Envoyer le formulaire et enregistrer",
-        attachmentReminder: "📎 Rappel : Vous devez joindre manuellement le fichier PDF avant d'envoyer !",
-        // Status messages
+        consentTitle: "Consentement et signature numérique",
+        consentBackgroundLabel: "Je consens à une vérification des antécédents",
+        consentBackgroundDesc: "J'autorise l'organisation à effectuer une vérification complète des antécédents pour les engagements de prise de parole dans les établissements correctionnels.",
+        consentDataLabel: "Je consens au traitement des données",
+        consentDataDesc: "Je comprends que mes informations personnelles seront traitées et stockées en toute sécurité à des fins de vérification uniquement.",
+        signDateLabel: "Date de signature",
+        digitalSignatureLabel: "Signature numérique",
+        signatureInstructions: "Utilisez votre souris ou votre doigt pour signer ci-dessus / Use your mouse or finger to sign above",
+        completedFormTitle: "✅ Votre formulaire complété est prêt !",
+        downloadInstructions: "Téléchargez votre PDF et soumettez-le par courriel.",
+        emailTitle: "📧 Soumettez votre formulaire",
+        emailInstructions: "Cliquez sur le bouton ci-dessous pour ouvrir votre client de messagerie avec un message pré-rempli. N'oubliez pas de joindre le fichier PDF !",
         processingMsg: "Génération de votre formulaire... Veuillez patienter.",
         signatureRequired: "Veuillez signer le formulaire avant de générer le PDF.",
-        pdfLoadError: "Erreur lors du chargement du modèle PDF. Veuillez réessayer.",
-        signatureError: "Erreur lors de l'ajout de la signature au PDF.",
         pdfSuccess: "Le formulaire PDF a été généré avec succès !",
-        pdfError: "Erreur lors du traitement du PDF : ",
-        loggingSubmission: "Enregistrement de la soumission dans Google Sheets...",
-        loggedSuccess: "Soumission enregistrée avec succès !",
-        loggedError: "Erreur lors de l'enregistrement de la soumission : "
+        pdfError: "Erreur lors du traitement du PDF : "
       }
     };
 
@@ -1023,65 +1240,17 @@
     function setLanguage(language) {
       const texts = translations[language];
       
-      // Update all text elements (keeping existing functionality)
-      document.getElementById('pageTitle').textContent = texts.pageTitle;
-      document.getElementById('noteLabel').textContent = texts.noteLabel;
-      document.getElementById('noteText').textContent = texts.noteText;
-      document.getElementById('sheetsNotice').textContent = texts.sheetsNotice;
-      document.getElementById('workflowTitle').textContent = texts.workflowTitle;
-      document.getElementById('step1').textContent = texts.step1;
-      document.getElementById('step2').textContent = texts.step2;
-      document.getElementById('step3').textContent = texts.step3;
-      document.getElementById('step4').textContent = texts.step4;
-      document.getElementById('step5').textContent = texts.step5;
-      document.getElementById('involvementTitle').textContent = texts.involvementTitle;
-      document.getElementById('sobrietyDateLabel').textContent = texts.sobrietyDateLabel;
-      document.getElementById('involvementLabel').textContent = texts.involvementLabel;
-      document.getElementById('joinCFCLabel').textContent = texts.joinCFCLabel;
-      document.getElementById('speakFacilityLabel').textContent = texts.speakFacilityLabel;
-      document.getElementById('tempContactLabel').textContent = texts.tempContactLabel;
-      document.getElementById('seekingInfoLabel').textContent = texts.seekingInfoLabel;
-      document.getElementById('personalInfoTitle').textContent = texts.personalInfoTitle;
-      document.getElementById('lastNameLabel').textContent = texts.lastNameLabel;
-      document.getElementById('firstNameLabel').textContent = texts.firstNameLabel;
-      document.getElementById('birthNameLabel').textContent = texts.birthNameLabel;
-      document.getElementById('otherNamesLabel').textContent = texts.otherNamesLabel;
-      document.getElementById('dobLabel').textContent = texts.dobLabel;
-      document.getElementById('genderLabel').textContent = texts.genderLabel;
-      document.getElementById('maleLabel').textContent = texts.maleLabel;
-      document.getElementById('femaleLabel').textContent = texts.femaleLabel;
-      document.getElementById('motherNameLabel').textContent = texts.motherNameLabel;
-      document.getElementById('addressLabel').textContent = texts.addressLabel;
-      document.getElementById('cityLabel').textContent = texts.cityLabel;
-      document.getElementById('addressDateLabel').textContent = texts.addressDateLabel;
-      document.getElementById('homePhoneLabel').textContent = texts.homePhoneLabel;
-      document.getElementById('workPhoneLabel').textContent = texts.workPhoneLabel;
-      document.getElementById('otherPhoneLabel').textContent = texts.otherPhoneLabel;
-      document.getElementById('crimeLabel').textContent = texts.crimeLabel;
-      document.getElementById('noLabel').textContent = texts.noLabel;
-      document.getElementById('yesLabel').textContent = texts.yesLabel;
-      document.getElementById('infractionDetailsLabel').textContent = texts.infractionDetailsLabel;
-      document.getElementById('signatureTitle').textContent = texts.signatureTitle;
-      document.getElementById('signDateLabel').textContent = texts.signDateLabel;
-      document.getElementById('yourSignatureLabel').textContent = texts.yourSignatureLabel;
-      document.getElementById('clearSignature').textContent = texts.clearSignature;
-      document.getElementById('emailTitle').textContent = texts.emailTitle;
-      document.getElementById('emailNote').textContent = texts.emailNote;
-      document.getElementById('emailLabel').textContent = texts.emailLabel;
-      document.getElementById('phoneLabel').textContent = texts.phoneLabel;
-      document.getElementById('fillPdfBtn').textContent = texts.fillPdfBtn;
-      document.getElementById('resetFormBtn').textContent = texts.resetFormBtn;
-      document.getElementById('completedFormTitle').textContent = texts.completedFormTitle;
-      document.getElementById('downloadInstructions').textContent = texts.downloadInstructions;
-      document.getElementById('instructionsTitle').textContent = texts.instructionsTitle;
-      document.getElementById('instruction1').innerHTML = texts.instruction1;
-      document.getElementById('instruction2').innerHTML = texts.instruction2;
-      document.getElementById('instruction3').innerHTML = texts.instruction3;
-      document.getElementById('instruction4').innerHTML = texts.instruction4;
-      document.getElementById('downloadPdfBtn').textContent = texts.downloadPdfBtn;
-      document.getElementById('printPdfBtn').textContent = texts.printPdfBtn;
-      document.getElementById('sendFormBtn').textContent = texts.sendFormBtn;
-      document.getElementById('attachmentReminder').textContent = texts.attachmentReminder;
+      // Update all text elements
+      Object.keys(texts).forEach(key => {
+        const element = document.getElementById(key);
+        if (element) {
+          if (element.tagName === 'INPUT' && element.type === 'button') {
+            element.value = texts[key];
+          } else {
+            element.textContent = texts[key];
+          }
+        }
+      });
       
       // Update document language attribute
       document.documentElement.lang = language === 'english' ? 'en' : 'fr';
@@ -1098,9 +1267,9 @@
       radio.addEventListener('change', function() {
         const infraDetail = document.getElementById('infraDetail');
         if (this.value === 'Oui') {
-          infraDetail.style.display = 'block';
+          infraDetail.classList.remove('hidden');
         } else {
-          infraDetail.style.display = 'none';
+          infraDetail.classList.add('hidden');
         }
       });
     });
@@ -1116,17 +1285,6 @@
     ctx.strokeStyle = "black";
     ctx.fillStyle = "white";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    // Add event listeners for drawing
-    canvas.addEventListener('mousedown', startDrawing);
-    canvas.addEventListener('mousemove', draw);
-    canvas.addEventListener('mouseup', stopDrawing);
-    canvas.addEventListener('mouseout', stopDrawing);
-    
-    // Touch events for mobile
-    canvas.addEventListener('touchstart', startDrawingTouch);
-    canvas.addEventListener('touchmove', drawTouch);
-    canvas.addEventListener('touchend', stopDrawing);
 
     // Drawing functions
     function startDrawing(e) {
@@ -1174,10 +1332,18 @@
       if (isDrawing) {
         ctx.beginPath();
         isDrawing = false;
-        // Save signature data
         signatureData = canvas.toDataURL('image/png');
       }
     }
+
+    // Add event listeners for drawing
+    canvas.addEventListener('mousedown', startDrawing);
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('mouseup', stopDrawing);
+    canvas.addEventListener('mouseout', stopDrawing);
+    canvas.addEventListener('touchstart', startDrawingTouch);
+    canvas.addEventListener('touchmove', drawTouch);
+    canvas.addEventListener('touchend', stopDrawing);
 
     // Clear signature button
     document.getElementById('clearSignature').addEventListener('click', function() {
@@ -1187,50 +1353,9 @@
       signatureData = null;
     });
 
-    // Reset form button
-    document.getElementById('resetFormBtn').addEventListener('click', function() {
-      // Reset all form fields
-      document.querySelectorAll('input[type="text"], input[type="tel"], input[type="date"], input[type="email"]').forEach(input => {
-        input.value = '';
-        input.classList.remove('valid', 'invalid');
-      });
-      
-      document.querySelectorAll('input[type="checkbox"], input[type="radio"]').forEach(input => {
-        input.checked = false;
-      });
-      
-      // Reset phone validation UI
-      document.querySelectorAll('.phone-validation-icon').forEach(icon => {
-        icon.classList.remove('valid', 'invalid');
-      });
-      
-      document.querySelectorAll('.phone-error-message').forEach(error => {
-        error.style.display = 'none';
-      });
-      
-      // Hide conditional fields
-      document.getElementById('infraDetail').style.display = 'none';
-      
-      // Clear signature
-      ctx.fillStyle = "white";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.beginPath();
-      signatureData = null;
-      
-      // Hide PDF container
-      document.getElementById('pdfContainer').style.display = 'none';
-      
-      // Clear status
-      document.getElementById('status').style.display = 'none';
-      
-      // Reset generated PDF
-      generatedPdfBytes = null;
-    });
-
     // Auto-load PDF on page load
     async function loadPDF() {
       try {
-        // Load the PDF from the same directory
         const response = await fetch('./Provincial consent form.pdf');
         if (!response.ok) {
           throw new Error('PDF not found');
@@ -1241,18 +1366,53 @@
       } catch (error) {
         console.error('Error loading PDF:', error);
         const language = document.getElementById('languageToggle').checked ? 'french' : 'english';
-        showStatus('error', translations[language].pdfLoadError);
+        showStatus('error', 'Error loading the PDF template. Please try again.');
       }
     }
 
-    // Fill PDF function (keeping existing implementation)
+    // Fill PDF function
     async function fillPDF() {
       const language = document.getElementById('languageToggle').checked ? 'french' : 'english';
       const texts = translations[language];
       
+      // Validate required fields
+      const requiredFields = ['prenoms', 'nom', 'dateNaissance', 'nomMere', 'adresse', 'ville', 'postalCode', 'telDomicile', 'userEmail', 'dateSignature'];
+      const missingFields = [];
+      
+      requiredFields.forEach(fieldId => {
+        const field = document.getElementById(fieldId);
+        if (!field.value.trim()) {
+          missingFields.push(field.previousElementSibling.textContent.replace(' *', ''));
+        }
+      });
+      
+      // Check gender selection
+      const sexe = document.querySelector('input[name="sexe"]:checked');
+      if (!sexe) {
+        missingFields.push('Gender');
+      }
+      
+      // Check criminal background selection
+      const infraction = document.querySelector('input[name="infraction"]:checked');
+      if (!infraction) {
+        missingFields.push('Criminal background question');
+      }
+      
+      // Check consent checkboxes
+      if (!document.getElementById('consentBackground').checked) {
+        missingFields.push('Background check consent');
+      }
+      if (!document.getElementById('consentData').checked) {
+        missingFields.push('Data processing consent');
+      }
+      
       // Validate signature
       if (!signatureData) {
-        alert(texts.signatureRequired);
+        missingFields.push('Digital signature');
+      }
+      
+      if (missingFields.length > 0) {
+        alert(`Please complete the following required fields:\n\n• ${missingFields.join('\n• ')}`);
         return;
       }
       
@@ -1267,16 +1427,12 @@
       showStatus('loading', texts.processingMsg);
       
       try {
-        const { PDFDocument, rgb, StandardFonts } = PDFLib;
+        const { PDFDocument, StandardFonts } = PDFLib;
         
         // Load the existing PDF
         const pdfDoc = await PDFDocument.load(pdfBytes);
-        
-        // Get the first page of the document
         const pages = pdfDoc.getPages();
         const page = pages[0];
-        
-        // Get a font
         const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
         
         // Format dates (DD/MM/YYYY)
@@ -1292,38 +1448,23 @@
         const nomNaissance = document.getElementById('nomNaissance').value;
         const autreNoms = document.getElementById('autreNoms').value;
         const dateNaissance = formatDate(document.getElementById('dateNaissance').value);
-        
-        const sexe = document.querySelector('input[name="sexe"]:checked');
         const sexeValue = sexe ? sexe.value : '';
-        
         const nomMere = document.getElementById('nomMere').value;
         const adresse = document.getElementById('adresse').value;
         const ville = document.getElementById('ville').value;
+        const postalCode = document.getElementById('postalCode').value;
         const dateAdresse = formatDate(document.getElementById('dateAdresse').value);
-        
-        // Get phone numbers (clean them for PDF)
         const telDomicile = phoneValidator.cleanPhone(document.getElementById('telDomicile').value);
         const telTravail = phoneValidator.cleanPhone(document.getElementById('telTravail').value);
         const telAutre = phoneValidator.cleanPhone(document.getElementById('telAutre').value);
-        
-        const infraction = document.querySelector('input[name="infraction"]:checked');
         const infractionValue = infraction ? infraction.value : '';
         const infractionDetail = document.getElementById('infractionDetails').value;
-        
         const dateSignature = formatDate(document.getElementById('dateSignature').value);
         
         // Set coordinates for text placement on the PDF
-        // Section 2 - Personal Information
-        // Last name
         page.drawText(nom, { x: 170, y: 648, size: 10, font });
-        
-        // First names
         page.drawText(prenoms, { x: 170, y: 700, size: 10, font });
-        
-        // Birth name
         page.drawText(nomNaissance, { x: 400, y: 680, size: 10, font });
-        
-        // Other names
         page.drawText(autreNoms, { x: 400, y: 648, size: 10, font });
         
         // Date of birth
@@ -1341,14 +1482,8 @@
           page.drawText('X', { x: 220, y: 610, size: 12, font });
         }
         
-        // Mother's name
         page.drawText(nomMere, { x: 400, y: 605, size: 10, font });
-        
-        // Address
-        page.drawText(adresse, { x: 150, y: 560, size: 10, font });
-        
-        // City, province, postal code
-        page.drawText(ville, { x: 400, y: 580, size: 10, font });
+        page.drawText(`${adresse}, ${ville}, ${postalCode}`, { x: 150, y: 560, size: 10, font });
         
         // Since when at address
         if (dateAdresse) {
@@ -1358,7 +1493,7 @@
           page.drawText(year, { x: 100, y: 530, size: 10, font });
         }
         
-        // Phone numbers (using cleaned versions)
+        // Phone numbers
         page.drawText(telDomicile, { x: 400, y: 536, size: 10, font });
         page.drawText(telTravail, { x: 390, y: 524, size: 10, font });
         page.drawText(telAutre, { x: 410, y: 516, size: 10, font });
@@ -1373,46 +1508,36 @@
         
         // Signature date (for both Parts B and C)
         if (dateSignature) {
-          // For Part B
           const [day1, month1, year1] = dateSignature.split('/');
           page.drawText(day1, { x: 380, y: 260, size: 10, font });
           page.drawText(month1, { x: 405, y: 260, size: 10, font });
           page.drawText(year1, { x: 435, y: 260, size: 10, font });
           
-          // For Part C
-          const [day2, month2, year2] = dateSignature.split('/');
-          page.drawText(day2, { x: 385, y: 180, size: 10, font });
-          page.drawText(month2, { x: 410, y: 180, size: 10, font });
-          page.drawText(year2, { x: 435, y: 180, size: 10, font });
+          page.drawText(day1, { x: 385, y: 180, size: 10, font });
+          page.drawText(month1, { x: 410, y: 180, size: 10, font });
+          page.drawText(year1, { x: 435, y: 180, size: 10, font });
         }
         
-        // Add signature image for both signature lines
+        // Add signature image
         try {
-          // Convert signature data URL to bytes
           const signatureImageBytes = await fetch(signatureData).then(res => res.arrayBuffer());
           const signatureImage = await pdfDoc.embedPng(signatureImageBytes);
+          const signatureDims = signatureImage.scale(0.2);
           
-          // Size the signature appropriately
-          const signatureDims = signatureImage.scale(0.2); // Scale signature to 20% of original size
-          
-          // Add signature to Part B
           page.drawImage(signatureImage, {
-            x: 170,
-            y: 250,
+            x: 170, y: 250,
             width: signatureDims.width,
             height: signatureDims.height,
           });
           
-          // Add signature to Part C
           page.drawImage(signatureImage, {
-            x: 170,
-            y: 170,
+            x: 170, y: 170,
             width: signatureDims.width,
             height: signatureDims.height,
           });
         } catch (error) {
           console.error('Error embedding signature:', error);
-          showStatus('error', texts.signatureError);
+          showStatus('error', 'Error adding signature to the PDF.');
           return;
         }
         
@@ -1420,30 +1545,30 @@
         const modifiedPdfBytes = await pdfDoc.save();
         generatedPdfBytes = modifiedPdfBytes;
         
-        // Create a blob from the PDF bytes
+        // Create a blob and preview
         const blob = new Blob([modifiedPdfBytes], { type: 'application/pdf' });
         const url = URL.createObjectURL(blob);
         
-        // Set the PDF preview
         document.getElementById('pdfPreview').src = url;
         document.getElementById('pdfContainer').style.display = 'block';
         
-        // Set up download button
+        // Set up buttons
         document.getElementById('downloadPdfBtn').onclick = function() {
           download(modifiedPdfBytes, 'filled_consent_form.pdf', 'application/pdf');
         };
         
-        // Set up print button
         document.getElementById('printPdfBtn').onclick = function() {
           const iframe = document.getElementById('pdfPreview');
           iframe.contentWindow.focus();
           iframe.contentWindow.print();
         };
         
-        // Set up send form button with Google Sheets integration
         document.getElementById('sendFormBtn').onclick = sendFormAndLogSubmission;
         
         showStatus('success', texts.pdfSuccess);
+        
+        // Scroll to PDF preview
+        document.getElementById('pdfContainer').scrollIntoView({ behavior: 'smooth' });
         
       } catch (error) {
         console.error('Error processing PDF:', error);
@@ -1451,48 +1576,41 @@
       }
     }
 
-    // Send form and log submission to Google Sheets (keeping existing implementation)
+    // Send form and log submission
     async function sendFormAndLogSubmission() {
       const language = document.getElementById('languageToggle').checked ? 'french' : 'english';
-      const texts = translations[language];
       
-      // Log submission to Google Sheets first
-      showStatus('loading', texts.loggingSubmission);
+      showStatus('loading', 'Logging submission...');
       
       try {
         await logSubmissionToSheets();
-        showStatus('success', texts.loggedSuccess);
+        showStatus('success', 'Submission logged successfully!');
         
-        // Wait a moment for user to see the success message
         setTimeout(() => {
           openMailtoLink();
         }, 1000);
         
       } catch (error) {
         console.error('Sheets logging error:', error);
-        showStatus('error', texts.loggedError + error.message);
+        showStatus('error', 'Error logging submission: ' + error.message);
         
-        // Still open the mailto link even if logging fails
         setTimeout(() => {
           openMailtoLink();
         }, 2000);
       }
     }
 
-    // CORS-Free submission function
+    // Log to Google Sheets
     async function logSubmissionToSheets() {
       const userEmail = document.getElementById('userEmail').value || 'Not provided';
-      const userPhone = phoneValidator.cleanPhone(document.getElementById('phoneNumber').value) || 'Not provided';
       const applicantName = `${document.getElementById('prenoms').value} ${document.getElementById('nom').value}`;
       
-      // Get involvement checkboxes
       const involvementOptions = [];
       if (document.getElementById('joinCFC').checked) involvementOptions.push('Join the CFC Committee');
       if (document.getElementById('speakFacility').checked) involvementOptions.push('Speak at a Correctional Facility');
       if (document.getElementById('tempContact').checked) involvementOptions.push('Become a Temporary Contact for Bridging the Gap');
       if (document.getElementById('seekingInfo').checked) involvementOptions.push('Seeking information');
       
-      // Prepare data as URL parameters (avoids CORS preflight)
       const params = new URLSearchParams({
         applicantName: applicantName,
         firstName: document.getElementById('prenoms').value,
@@ -1502,10 +1620,9 @@
         involvement: involvementOptions.join(', '),
         signatureDate: document.getElementById('dateSignature').value,
         userEmail: userEmail,
-        userPhone: userPhone
+        userPhone: phoneValidator.cleanPhone(document.getElementById('telDomicile').value)
       });
       
-      // Use GET request to avoid CORS preflight
       const response = await fetch(`${GOOGLE_SHEETS_URL}?${params.toString()}`, {
         method: 'GET',
         mode: 'cors'
@@ -1526,12 +1643,10 @@
     // Open mailto link
     function openMailtoLink() {
       const userEmail = document.getElementById('userEmail').value || 'your.email@example.com';
-      const userPhone = phoneValidator.cleanPhone(document.getElementById('phoneNumber').value) || 'Not provided';
       const applicantName = `${document.getElementById('prenoms').value} ${document.getElementById('nom').value}`;
       const submissionDate = new Date().toLocaleDateString();
       
-      // Format subject with applicant name and date: "John Smith Clearance Form Application 6/11/2025"
-      const subject = encodeURIComponent(`${applicantName} Clearance Form Application ${submissionDate}`);
+      const subject = encodeURIComponent(`${applicantName} Background Check Form Submission ${submissionDate}`);
       const body = encodeURIComponent(`Hello,
 
 I am submitting my completed Quebec Background Check Form as requested.
@@ -1539,12 +1654,11 @@ I am submitting my completed Quebec Background Check Form as requested.
 Applicant Details:
 - Name: ${applicantName}
 - Email: ${userEmail}
-- Phone: ${userPhone}
 - Submission Date: ${submissionDate}
 
-⚠️ IMPORTANT: Please remember to attach the PDF file before sending this email.
+⚠️ IMPORTANT: The completed PDF form is attached to this email.
 
-The completed PDF form should be attached to this email. If you need any additional information, please contact me at ${userEmail}.
+If you need any additional information, please contact me at ${userEmail}.
 
 Thank you for your time.
 
@@ -1555,10 +1669,55 @@ ${applicantName}`);
       window.open(mailtoLink);
     }
 
+    // Reset form button
+    document.getElementById('resetFormBtn').addEventListener('click', function() {
+      if (confirm('Are you sure you want to reset the entire form? This will clear all your data.')) {
+        // Reset all form fields
+        document.querySelectorAll('input[type="text"], input[type="tel"], input[type="date"], input[type="email"]').forEach(input => {
+          input.value = '';
+          input.classList.remove('valid', 'invalid');
+        });
+        
+        document.querySelectorAll('input[type="checkbox"], input[type="radio"]').forEach(input => {
+          input.checked = false;
+        });
+        
+        // Reset validation UI
+        document.querySelectorAll('.phone-validation-icon').forEach(icon => {
+          icon.classList.remove('valid', 'invalid');
+        });
+        
+        document.querySelectorAll('.phone-error-message').forEach(error => {
+          error.style.display = 'none';
+        });
+        
+        // Hide conditional fields
+        document.getElementById('infraDetail').classList.add('hidden');
+        
+        // Clear signature
+        ctx.fillStyle = "white";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.beginPath();
+        signatureData = null;
+        
+        // Hide PDF container
+        document.getElementById('pdfContainer').style.display = 'none';
+        
+        // Clear status
+        document.getElementById('status').style.display = 'none';
+        
+        // Reset generated PDF
+        generatedPdfBytes = null;
+        
+        // Scroll to top
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    });
+
     // Helper function to show status messages
     function showStatus(type, message) {
       const statusElement = document.getElementById('status');
-      statusElement.className = type;
+      statusElement.className = `alert ${type}`;
       statusElement.style.display = 'block';
       
       if (type === 'loading') {
@@ -1567,7 +1726,6 @@ ${applicantName}`);
         statusElement.textContent = message;
       }
       
-      // Auto-hide non-loading status after 5 seconds
       if (type !== 'loading') {
         setTimeout(() => {
           statusElement.style.display = 'none';
@@ -1587,29 +1745,25 @@ ${applicantName}`);
       { id: 'infractionDetails', maxLength: 150 }
     ];
 
-    // Add input event listeners to update character counters
     textInputs.forEach(input => {
       const inputElement = document.getElementById(input.id);
       const counterElement = document.getElementById(`${input.id}Counter`);
       
       if (inputElement && counterElement) {
-        // Update counter initially
         counterElement.textContent = inputElement.value.length;
         
-        // Add input event listener
         inputElement.addEventListener('input', function() {
           counterElement.textContent = this.value.length;
           
-          // Change counter color when approaching limit
           const charCount = this.value.length;
           const percent = charCount / input.maxLength;
           
           if (percent >= 0.9) {
-            counterElement.parentElement.style.color = '#dc3545'; // Red when near limit
+            counterElement.style.color = '#ef4444';
           } else if (percent >= 0.7) {
-            counterElement.parentElement.style.color = '#fd7e14'; // Orange when getting close
+            counterElement.style.color = '#f59e0b';
           } else {
-            counterElement.parentElement.style.color = '#6c757d'; // Default gray
+            counterElement.style.color = '#6b7280';
           }
         });
       }
@@ -1617,41 +1771,22 @@ ${applicantName}`);
 
     // Initialize everything
     document.addEventListener('DOMContentLoaded', function() {
-      // Setup enhanced phone validation for all phone fields
+      // Setup validators
       phoneValidator.setupPhoneField('telDomicile');
       phoneValidator.setupPhoneField('telTravail');
       phoneValidator.setupPhoneField('telAutre');
-      phoneValidator.setupPhoneField('phoneNumber');
+      postalCodeValidator.setupPostalCodeField('postalCode');
+      
+      // Set today's date as default signature date
+      document.getElementById('dateSignature').value = new Date().toISOString().split('T')[0];
       
       // Attach event listeners
       document.getElementById('fillPdfBtn').addEventListener('click', fillPDF);
       
-      // Initialize language to English and load PDF
+      // Initialize language and load PDF
       setLanguage('english');
       loadPDF();
     });
-
-    // Also initialize on script load (fallback)
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', function() {
-        phoneValidator.setupPhoneField('telDomicile');
-        phoneValidator.setupPhoneField('telTravail');
-        phoneValidator.setupPhoneField('telAutre');
-        phoneValidator.setupPhoneField('phoneNumber');
-      });
-    } else {
-      phoneValidator.setupPhoneField('telDomicile');
-      phoneValidator.setupPhoneField('telTravail');
-      phoneValidator.setupPhoneField('telAutre');
-      phoneValidator.setupPhoneField('phoneNumber');
-    }
-    
-    // Attach event listeners
-    document.getElementById('fillPdfBtn').addEventListener('click', fillPDF);
-    
-    // Initialize language to English and load PDF
-    setLanguage('english');
-    loadPDF();
   </script>
 </body>
 </html>
