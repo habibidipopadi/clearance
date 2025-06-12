@@ -561,6 +561,76 @@
       display: none !important;
     }
 
+    /* Enhanced styles for email fallback and instructions */
+    .email-fallback {
+      background: #fef3c7;
+      border: 2px solid #f59e0b;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 20px 0;
+      max-width: 600px;
+    }
+
+    .email-fallback h4 {
+      color: #92400e;
+      margin: 0 0 12px 0;
+    }
+
+    .email-fallback p {
+      margin: 0 0 12px 0;
+      color: #92400e;
+    }
+
+    .email-details {
+      background: white;
+      padding: 12px;
+      border-radius: 4px;
+      margin: 12px 0;
+      font-family: monospace;
+      font-size: 14px;
+      border: 1px solid #d1d5db;
+    }
+
+    .email-instructions-box {
+      background: #ecfdf5;
+      border: 2px solid #10b981;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 20px 0;
+      max-width: 600px;
+    }
+
+    .email-instructions-box h4 {
+      color: #065f46;
+      margin: 0 0 12px 0;
+    }
+
+    .email-instructions-box ol {
+      color: #065f46;
+      margin: 0;
+      padding-left: 20px;
+    }
+
+    .manual-submission {
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 8px;
+      padding: 16px;
+      margin: 20px 0;
+      font-size: 14px;
+    }
+
+    .manual-submission h4 {
+      color: #495057;
+      margin: 0 0 8px 0;
+      font-size: 16px;
+    }
+
+    .manual-submission p {
+      margin: 4px 0;
+      color: #6c757d;
+    }
+
     @media (max-width: 768px) {
       .container {
         margin: 0 16px;
@@ -585,6 +655,14 @@
       
       .btn {
         width: 100%;
+      }
+
+      .email-fallback,
+      .email-instructions-box {
+        margin: 20px -20px;
+        border-radius: 0;
+        border-left: none;
+        border-right: none;
       }
     }
   </style>
@@ -863,6 +941,14 @@
         </div>
       </div>
 
+      <!-- Manual Submission Instructions -->
+      <div class="manual-submission">
+        <h4>Alternative Submission Methods:</h4>
+        <p><strong>Email:</strong> correctionalfacilities@aa87.org</p>
+        <p><strong>Subject:</strong> [Your Name] - Background Check Form</p>
+        <p><strong>Required:</strong> Attach the completed PDF file</p>
+      </div>
+
       <div class="button-group">
         <button type="button" id="fillPdfBtn" class="btn btn-primary">📄 Generate Completed Form</button>
         <button type="button" id="resetFormBtn" class="btn btn-outline">🔄 Reset Form</button>
@@ -1069,12 +1155,8 @@
     // Canadian Postal Code Validator
     class PostalCodeValidator {
       validatePostalCode(postalCode) {
-        // Remove spaces and convert to uppercase
         const cleaned = postalCode.replace(/\s/g, '').toUpperCase();
-        
-        // Canadian postal code format: A1A 1A1
         const canadianPattern = /^[A-Z]\d[A-Z]\d[A-Z]\d$/;
-        
         return canadianPattern.test(cleaned);
       }
 
@@ -1576,28 +1658,174 @@
       }
     }
 
-    // Send form and log submission
+    // Enhanced send form function with better user feedback
     async function sendFormAndLogSubmission() {
       const language = document.getElementById('languageToggle').checked ? 'french' : 'english';
       
-      showStatus('loading', 'Logging submission...');
+      showStatus('loading', 'Preparing submission...');
       
       try {
+        // Log to Google Sheets first
         await logSubmissionToSheets();
         showStatus('success', 'Submission logged successfully!');
         
+        // Show email instructions
+        showEmailInstructions();
+        
+        // Wait a moment then open email
         setTimeout(() => {
           openMailtoLink();
-        }, 1000);
+        }, 1500);
         
       } catch (error) {
         console.error('Sheets logging error:', error);
         showStatus('error', 'Error logging submission: ' + error.message);
         
+        // Still try to open email even if logging fails
         setTimeout(() => {
           openMailtoLink();
         }, 2000);
       }
+    }
+
+    // Improved mailto function with error handling and fallbacks
+    function openMailtoLink() {
+      const userEmail = document.getElementById('userEmail').value || 'your.email@example.com';
+      const applicantName = `${document.getElementById('prenoms').value} ${document.getElementById('nom').value}`;
+      const submissionDate = new Date().toLocaleDateString();
+      
+      // Shorter, more concise email body to avoid URL length limits
+      const subject = encodeURIComponent(`${applicantName} - Background Check Form`);
+      const body = encodeURIComponent(`Hello,
+
+I am submitting my Quebec Background Check Form.
+
+Name: ${applicantName}
+Email: ${userEmail}
+Date: ${submissionDate}
+
+⚠️ PDF attachment required.
+
+Thank you,
+${applicantName}`);
+      
+      const mailtoLink = `mailto:correctionalfacilities@aa87.org?subject=${subject}&body=${body}`;
+      
+      // Try to open mailto link
+      try {
+        // Use location.href instead of window.open() - more reliable
+        const beforeTime = Date.now();
+        window.location.href = mailtoLink;
+        
+        // Check if user returned quickly (might indicate no email client)
+        setTimeout(() => {
+          const afterTime = Date.now();
+          if (afterTime - beforeTime < 1000) {
+            showMailtoFallback(userEmail, applicantName, submissionDate);
+          }
+        }, 500);
+        
+      } catch (error) {
+        console.error('Mailto failed:', error);
+        showMailtoFallback(userEmail, applicantName, submissionDate);
+      }
+    }
+
+    // Fallback function when mailto doesn't work
+    function showMailtoFallback(userEmail, applicantName, submissionDate) {
+      const fallbackHTML = `
+        <div class="email-fallback">
+          <h4>📧 Email Client Not Available</h4>
+          <p>Please manually send an email with the following details:</p>
+          
+          <div class="email-details">
+            <strong>To:</strong> correctionalfacilities@aa87.org<br>
+            <strong>Subject:</strong> ${applicantName} - Background Check Form<br><br>
+            <strong>Message:</strong><br>
+            Hello,<br><br>
+            I am submitting my Quebec Background Check Form.<br><br>
+            Name: ${applicantName}<br>
+            Email: ${userEmail}<br>
+            Date: ${submissionDate}<br><br>
+            ⚠️ PDF attachment required.<br><br>
+            Thank you,<br>
+            ${applicantName}
+          </div>
+          
+          <div style="display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap;">
+            <button onclick="copyEmailDetails('${applicantName}', '${userEmail}', '${submissionDate}')" 
+                    class="btn btn-primary" style="margin: 0;">
+              📋 Copy Email Details
+            </button>
+            <button onclick="this.parentElement.parentElement.style.display='none'" 
+                    class="btn btn-outline" style="margin: 0;">
+              ❌ Close
+            </button>
+          </div>
+        </div>
+      `;
+      
+      // Insert fallback after the status message
+      const statusElement = document.getElementById('status');
+      statusElement.insertAdjacentHTML('afterend', fallbackHTML);
+    }
+
+    // Copy email details to clipboard
+    async function copyEmailDetails(applicantName, userEmail, submissionDate) {
+      const emailText = `To: correctionalfacilities@aa87.org
+Subject: ${applicantName} - Background Check Form
+
+Hello,
+
+I am submitting my Quebec Background Check Form.
+
+Name: ${applicantName}
+Email: ${userEmail}
+Date: ${submissionDate}
+
+⚠️ PDF attachment required.
+
+Thank you,
+${applicantName}`;
+
+      try {
+        await navigator.clipboard.writeText(emailText);
+        alert('📋 Email details copied to clipboard! Paste into your email client.');
+      } catch (error) {
+        console.error('Copy failed:', error);
+        // Fallback: show text in a popup for manual copying
+        const textWindow = window.open('', '_blank', 'width=500,height=400');
+        textWindow.document.write(`
+          <html>
+            <head><title>Email Details</title></head>
+            <body style="font-family: Arial, sans-serif; padding: 20px;">
+              <h3>Copy this text and paste into your email client:</h3>
+              <textarea style="width: 100%; height: 250px; font-family: monospace;">${emailText}</textarea>
+              <button onclick="window.close()" style="margin-top: 10px; padding: 8px 16px;">Close</button>
+            </body>
+          </html>
+        `);
+      }
+    }
+
+    // Show clear email instructions
+    function showEmailInstructions() {
+      const instructionsHTML = `
+        <div class="email-instructions-box">
+          <h4>📧 Next Steps</h4>
+          <ol>
+            <li><strong>Your email client should open automatically</strong></li>
+            <li><strong>Attach the downloaded PDF file</strong></li>
+            <li><strong>Send the email</strong></li>
+          </ol>
+          <p style="margin: 12px 0 0 0; font-size: 14px;">
+            <strong>⚠️ Important:</strong> The PDF attachment is required - emails without the PDF will not be processed.
+          </p>
+        </div>
+      `;
+      
+      const statusElement = document.getElementById('status');
+      statusElement.insertAdjacentHTML('afterend', instructionsHTML);
     }
 
     // Log to Google Sheets
@@ -1640,35 +1868,6 @@
       return result;
     }
 
-    // Open mailto link
-    function openMailtoLink() {
-      const userEmail = document.getElementById('userEmail').value || 'your.email@example.com';
-      const applicantName = `${document.getElementById('prenoms').value} ${document.getElementById('nom').value}`;
-      const submissionDate = new Date().toLocaleDateString();
-      
-      const subject = encodeURIComponent(`${applicantName} Background Check Form Submission ${submissionDate}`);
-      const body = encodeURIComponent(`Hello,
-
-I am submitting my completed Quebec Background Check Form as requested.
-
-Applicant Details:
-- Name: ${applicantName}
-- Email: ${userEmail}
-- Submission Date: ${submissionDate}
-
-⚠️ IMPORTANT: The completed PDF form is attached to this email.
-
-If you need any additional information, please contact me at ${userEmail}.
-
-Thank you for your time.
-
-Best regards,
-${applicantName}`);
-      
-      const mailtoLink = `mailto:correctionalfacilities@aa87.org?subject=${subject}&body=${body}`;
-      window.open(mailtoLink);
-    }
-
     // Reset form button
     document.getElementById('resetFormBtn').addEventListener('click', function() {
       if (confirm('Are you sure you want to reset the entire form? This will clear all your data.')) {
@@ -1703,11 +1902,15 @@ ${applicantName}`);
         // Hide PDF container
         document.getElementById('pdfContainer').style.display = 'none';
         
-        // Clear status
+        // Clear status and any inserted elements
         document.getElementById('status').style.display = 'none';
+        document.querySelectorAll('.email-fallback, .email-instructions-box').forEach(el => el.remove());
         
         // Reset generated PDF
         generatedPdfBytes = null;
+        
+        // Reset signature date to today
+        document.getElementById('dateSignature').value = new Date().toISOString().split('T')[0];
         
         // Scroll to top
         window.scrollTo({ top: 0, behavior: 'smooth' });
