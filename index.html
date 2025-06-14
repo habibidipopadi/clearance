@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Quebec Background Check Form</title>
+  <title>CFC Sign up & Background Check Form</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/downloadjs/1.4.8/download.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
@@ -665,7 +665,7 @@
 <body>
   <div class="container">
     <div class="header">
-      <h1 id="pageTitle">Quebec Background Check Form</h1>
+      <h1 id="pageTitle">CFC Sign up & Background Check Form</h1>
       <p id="pageSubtitle">Complete your background verification form digitally</p>
       
       <div class="language-toggle">
@@ -979,14 +979,6 @@
             <div class="consent-description" id="consentBackgroundDesc">
               I authorize the organization to conduct a comprehensive background verification for speaking engagements at correctional facilities.
             </div>
-            
-            <div class="consent-checkbox">
-              <input type="checkbox" id="consentData" required>
-              <label for="consentData" id="consentDataLabel">I consent to data processing</label>
-            </div>
-            <div class="consent-description" id="consentDataDesc">
-              I understand that my personal information will be processed and stored securely for verification purposes only.
-            </div>
           </div>
         </div>
         
@@ -1260,7 +1252,7 @@
     // Language translations
     const translations = {
       english: {
-        pageTitle: "Quebec Background Check Form",
+        pageTitle: "CFC Sign up & Background Check Form",
         pageSubtitle: "Complete your background verification form digitally",
         howItWorksTitle: "📋 How It Works",
         step1: "Fill out the form and add your digital signature",
@@ -1319,8 +1311,6 @@
         consentTitle: "Consent & Digital Signature",
         consentBackgroundLabel: "I consent to a background check",
         consentBackgroundDesc: "I authorize the organization to conduct a comprehensive background verification for speaking engagements at correctional facilities.",
-        consentDataLabel: "I consent to data processing",
-        consentDataDesc: "I understand that my personal information will be processed and stored securely for verification purposes only.",
         signDateLabel: "Signature Date",
         digitalSignatureLabel: "Digital Signature",
         signatureInstructions: "Use your mouse or finger to sign above / Utilisez votre souris ou votre doigt pour signer ci-dessus",
@@ -1333,7 +1323,7 @@
         generationError: "Error generating files: "
       },
       french: {
-        pageTitle: "Formulaire de vérification d'antécédents du Québec",
+        pageTitle: "Formulaire d'inscription CFC et de vérification des antécédents",
         pageSubtitle: "Complétez votre formulaire de vérification des antécédents numériquement",
         howItWorksTitle: "📋 Comment ça marche",
         step1: "Remplissez le formulaire et ajoutez votre signature numérique",
@@ -1392,8 +1382,6 @@
         consentTitle: "Consentement et signature numérique",
         consentBackgroundLabel: "Je consens à une vérification des antécédents",
         consentBackgroundDesc: "J'autorise l'organisation à effectuer une vérification complète des antécédents pour les engagements de prise de parole dans les établissements correctionnels.",
-        consentDataLabel: "Je consens au traitement des données",
-        consentDataDesc: "Je comprends que mes informations personnelles seront traitées et stockées en toute sécurité à des fins de vérification uniquement.",
         signDateLabel: "Date de signature",
         digitalSignatureLabel: "Signature numérique",
         signatureInstructions: "Utilisez votre souris ou votre doigt pour signer ci-dessus / Use your mouse or finger to sign above",
@@ -1706,9 +1694,6 @@
         if (!document.getElementById('consentBackground').checked) {
           missingFields.push('Background check consent');
         }
-        if (!document.getElementById('consentData').checked) {
-          missingFields.push('Data processing consent');
-        }
         
         // Validate signature
         if (!signatureData) {
@@ -2000,14 +1985,43 @@
       const userEmail = document.getElementById('userEmail').value;
       const submissionDate = new Date().toLocaleDateString();
       
+      // Get involvement information
+      const involvementOptions = [];
+      if (document.getElementById('joinCFC').checked) involvementOptions.push('Join the CFC Committee');
+      if (document.getElementById('speakFacility').checked) involvementOptions.push('Speak at a Correctional Facility');
+      if (document.getElementById('tempContact').checked) involvementOptions.push('Become a Temporary Contact for Bridging the Gap');
+      if (document.getElementById('seekingInfo').checked) involvementOptions.push('Seeking information');
+      
+      // Get BTG information if applicable
+      let btgInfo = '';
+      if (document.getElementById('tempContact').checked) {
+        const stepsCompleted = document.querySelector('input[name="stepsCompleted"]:checked')?.value || 'Not specified';
+        const travelDistance = document.querySelector('input[name="travelDistance"]:checked')?.value || 'Not specified';
+        const aaRegion = document.getElementById('aaRegion').value || 'Not specified';
+        
+        btgInfo = `
+
+**Bridging the Gap - Additional Information:**
+**Steps Completed:** ${stepsCompleted}
+**Travel Distance:** ${travelDistance}
+**AA Region:** ${aaRegion}`;
+      }
+      
+      // Get sobriety date
+      const sobrietyDate = document.getElementById('sobrietyDate').value || 'Not provided';
+      
       const subject = encodeURIComponent(`${applicantName} - Background Check Application`);
       const body = encodeURIComponent(`Hello,
 
 I am submitting my Quebec Background Check Form for volunteer screening.
 
-Applicant: ${applicantName}
-Email: ${userEmail}
-Date: ${submissionDate}
+**Applicant:** ${applicantName}
+**Email:** ${userEmail}
+**Date:** ${submissionDate}
+
+**Involvement Information:**
+**Sobriety Date:** ${sobrietyDate}
+**How I want to get involved:** ${involvementOptions.length > 0 ? involvementOptions.join(', ') : 'Not specified'}${btgInfo}
 
 Please find attached my complete application, which includes:
 - Completed Background Check Form
