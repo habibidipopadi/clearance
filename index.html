@@ -1663,13 +1663,24 @@
         showStatus('loading', 'Checking form...');
 
         // Validate required fields
-        const requiredFields = ['prenoms', 'nom', 'dateNaissance', 'nomMere', 'adresse', 'ville', 'postalCode', 'telDomicile', 'userEmail', 'dateSignature'];
+        const requiredFields = [
+          { id: 'prenoms', name: 'First Name' },
+          { id: 'nom', name: 'Last Name' },
+          { id: 'dateNaissance', name: 'Date of Birth' },
+          { id: 'nomMere', name: "Mother's Full Name" },
+          { id: 'adresse', name: 'Address' },
+          { id: 'ville', name: 'City' },
+          { id: 'postalCode', name: 'Postal Code' },
+          { id: 'telDomicile', name: 'Phone Number' },
+          { id: 'userEmail', name: 'Email Address' },
+          { id: 'dateSignature', name: 'Signature Date' }
+        ];
         const missingFields = [];
         
-        requiredFields.forEach(fieldId => {
-          const field = document.getElementById(fieldId);
-          if (!field.value.trim()) {
-            missingFields.push(field.previousElementSibling.textContent.replace(' *', ''));
+        requiredFields.forEach(field => {
+          const element = document.getElementById(field.id);
+          if (!element || !element.value.trim()) {
+            missingFields.push(field.name);
           }
         });
         
