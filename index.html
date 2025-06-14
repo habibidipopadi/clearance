@@ -1566,19 +1566,61 @@
       signatureData = null;
     });
 
-    // Auto-load PDF on page load
+    // Auto-load PDF on page load with better error handling
     async function loadPDF() {
+      console.log('📄 Attempting to load PDF template...'); // Debug log
+      
       try {
         const response = await fetch('./Provincial consent form.pdf');
+        console.log('📄 PDF fetch response:', response.status, response.statusText); // Debug log
+        
         if (!response.ok) {
-          throw new Error('PDF not found');
+          throw new Error(`PDF not found (${response.status}). Make sure "Provincial consent form.pdf" is in the same folder as your HTML file.`);
         }
+        
         const arrayBuffer = await response.arrayBuffer();
         pdfBytes = new Uint8Array(arrayBuffer);
-        console.log('PDF template loaded successfully');
+        console.log('✅ PDF template loaded successfully, size:', pdfBytes.length, 'bytes'); // Debug log
+        
       } catch (error) {
-        console.error('Error loading PDF:', error);
-        showStatus('error', 'Error loading the PDF template. Please try again.');
+        console.error('❌ Error loading PDF:', error);
+        
+        // Show user-friendly error
+        const errorMsg = 'PDF template not found. Please ensure "Provincial consent form.pdf" is uploaded to your website.';
+        showStatus('error', errorMsg);
+        
+        // Also create a test button to verify the form works without PDF
+        const testBtn = document.createElement('button');
+        testBtn.textContent = '🧪 Test Without PDF';
+        testBtn.className = 'btn btn-secondary';
+        testBtn.style.marginLeft = '10px';
+        testBtn.onclick = testWithoutPDF;
+        document.getElementById('generateBtn').parentNode.appendChild(testBtn);
+      }
+    }
+
+    // Test function that works without PDF template
+    function testWithoutPDF() {
+      console.log('🧪 Testing form without PDF template...');
+      
+      try {
+        // Just test the validation and flow
+        const applicantName = `${document.getElementById('prenoms').value} ${document.getElementById('nom').value}`;
+        
+        if (!applicantName.trim() || applicantName === ' ') {
+          alert('Please fill in your name to test the form.');
+          return;
+        }
+        
+        // Show success message
+        showStatus('success', 'Form validation works! (PDF template missing for full functionality)');
+        
+        // Show what would happen
+        alert(`✅ Form test successful!\n\nApplicant: ${applicantName}\nPhoto: ${uploadedPhoto ? 'Uploaded ✅' : 'Missing ❌'}\nSignature: ${signatureData ? 'Signed ✅' : 'Missing ❌'}\n\nTo complete setup, upload "Provincial consent form.pdf" to your website.`);
+        
+      } catch (error) {
+        console.error('Test error:', error);
+        alert('Test failed: ' + error.message);
       }
     }
 
@@ -1610,68 +1652,76 @@
       };
     }
 
-    // Main generate function
+    // Main generate function with better error handling
     async function generateFilesAndEmail() {
+      console.log('🚀 Generate button clicked!'); // Debug log
+      
       const language = document.getElementById('languageToggle').checked ? 'french' : 'english';
       const texts = translations[language];
 
-      // Validate required fields
-      const requiredFields = ['prenoms', 'nom', 'dateNaissance', 'nomMere', 'adresse', 'ville', 'postalCode', 'telDomicile', 'userEmail', 'dateSignature'];
-      const missingFields = [];
-      
-      requiredFields.forEach(fieldId => {
-        const field = document.getElementById(fieldId);
-        if (!field.value.trim()) {
-          missingFields.push(field.previousElementSibling.textContent.replace(' *', ''));
-        }
-      });
-      
-      // Check gender selection
-      const sexe = document.querySelector('input[name="sexe"]:checked');
-      if (!sexe) {
-        missingFields.push('Gender');
-      }
-      
-      // Check criminal background selection
-      const infraction = document.querySelector('input[name="infraction"]:checked');
-      if (!infraction) {
-        missingFields.push('Criminal background question');
-      }
-
-      // Validate BTG fields if selected
-      const btgValidation = validateBTGFields();
-      if (!btgValidation.valid) {
-        missingFields.push(...btgValidation.missingFields);
-      }
-      
-      // Check consent checkboxes
-      if (!document.getElementById('consentBackground').checked) {
-        missingFields.push('Background check consent');
-      }
-      if (!document.getElementById('consentData').checked) {
-        missingFields.push('Data processing consent');
-      }
-      
-      // Validate signature
-      if (!signatureData) {
-        missingFields.push('Digital signature');
-      }
-
-      // Validate photo upload
-      if (!uploadedPhoto) {
-        missingFields.push('ID photo upload');
-      }
-      
-      if (missingFields.length > 0) {
-        alert(`Please complete the following required fields:\n\n• ${missingFields.join('\n• ')}`);
-        return;
-      }
-
-      showStatus('loading', texts.processingMsg);
-
       try {
+        showStatus('loading', 'Checking form...');
+
+        // Validate required fields
+        const requiredFields = ['prenoms', 'nom', 'dateNaissance', 'nomMere', 'adresse', 'ville', 'postalCode', 'telDomicile', 'userEmail', 'dateSignature'];
+        const missingFields = [];
+        
+        requiredFields.forEach(fieldId => {
+          const field = document.getElementById(fieldId);
+          if (!field.value.trim()) {
+            missingFields.push(field.previousElementSibling.textContent.replace(' *', ''));
+          }
+        });
+        
+        // Check gender selection
+        const sexe = document.querySelector('input[name="sexe"]:checked');
+        if (!sexe) {
+          missingFields.push('Gender');
+        }
+        
+        // Check criminal background selection
+        const infraction = document.querySelector('input[name="infraction"]:checked');
+        if (!infraction) {
+          missingFields.push('Criminal background question');
+        }
+
+        // Validate BTG fields if selected
+        const btgValidation = validateBTGFields();
+        if (!btgValidation.valid) {
+          missingFields.push(...btgValidation.missingFields);
+        }
+        
+        // Check consent checkboxes
+        if (!document.getElementById('consentBackground').checked) {
+          missingFields.push('Background check consent');
+        }
+        if (!document.getElementById('consentData').checked) {
+          missingFields.push('Data processing consent');
+        }
+        
+        // Validate signature
+        if (!signatureData) {
+          missingFields.push('Digital signature');
+        }
+
+        // Validate photo upload
+        if (!uploadedPhoto) {
+          missingFields.push('ID photo upload');
+        }
+        
+        if (missingFields.length > 0) {
+          showStatus('error', `Missing required fields: ${missingFields.join(', ')}`);
+          alert(`Please complete the following required fields:\n\n• ${missingFields.join('\n• ')}`);
+          return;
+        }
+
+        console.log('✅ All validation passed'); // Debug log
+        showStatus('loading', texts.processingMsg);
+
         // Generate PDF
         await generatePDF();
+        
+        console.log('✅ PDF generated successfully'); // Debug log
         
         // Show completion section
         document.getElementById('completionSection').style.display = 'block';
@@ -1689,8 +1739,11 @@
         document.getElementById('completionSection').scrollIntoView({ behavior: 'smooth' });
         
       } catch (error) {
-        console.error('Error generating files:', error);
-        showStatus('error', texts.generationError + error.message);
+        console.error('❌ Error in generateFilesAndEmail:', error);
+        showStatus('error', 'Error: ' + error.message);
+        
+        // Show detailed error to help debug
+        alert(`Error generating files:\n\n${error.message}\n\nCheck browser console (F12) for more details.`);
       }
     }
 
