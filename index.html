@@ -1576,39 +1576,6 @@
         // Show user-friendly error
         const errorMsg = 'PDF template not found. Please ensure "Provincial consent form.pdf" is uploaded to your website.';
         showStatus('error', errorMsg);
-        
-        // Also create a test button to verify the form works without PDF
-        const testBtn = document.createElement('button');
-        testBtn.textContent = '🧪 Test Without PDF';
-        testBtn.className = 'btn btn-secondary';
-        testBtn.style.marginLeft = '10px';
-        testBtn.onclick = testWithoutPDF;
-        document.getElementById('generateBtn').parentNode.appendChild(testBtn);
-      }
-    }
-
-    // Test function that works without PDF template
-    function testWithoutPDF() {
-      console.log('🧪 Testing form without PDF template...');
-      
-      try {
-        // Just test the validation and flow
-        const applicantName = `${document.getElementById('prenoms').value} ${document.getElementById('nom').value}`;
-        
-        if (!applicantName.trim() || applicantName === ' ') {
-          alert('Please fill in your name to test the form.');
-          return;
-        }
-        
-        // Show success message
-        showStatus('success', 'Form validation works! (PDF template missing for full functionality)');
-        
-        // Show what would happen
-        alert(`✅ Form test successful!\n\nApplicant: ${applicantName}\nPhoto: ${uploadedPhoto ? 'Uploaded ✅' : 'Missing ❌'}\nSignature: ${signatureData ? 'Signed ✅' : 'Missing ❌'}\n\nTo complete setup, upload "Provincial consent form.pdf" to your website.`);
-        
-      } catch (error) {
-        console.error('Test error:', error);
-        alert('Test failed: ' + error.message);
       }
     }
 
@@ -1765,8 +1732,9 @@
         // Format dates (DD/MM/YYYY)
         const formatDate = (dateStr) => {
           if (!dateStr) return '';
-          const date = new Date(dateStr);
-          return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
+          // Split the date string directly to avoid timezone issues
+          const [year, month, day] = dateStr.split('-');
+          return `${day}/${month}/${year}`;
         };
         
         // Get form values
